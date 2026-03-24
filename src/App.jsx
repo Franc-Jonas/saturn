@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 const defaultColor = "#fb4f2b";
-const tabs = ["music", "map", "notes", "settings"];
+const tabs = ["music", "map", "files", "notes", "settings"];
 const mono = "'Courier New', monospace";
 
 const hexToRgb = (hex) => {
@@ -46,6 +46,7 @@ const TabIcon = ({ tab }) => {
   const icons = {
     music: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12V4l7-1.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="4.5" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="11.5" cy="11" r="1.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
     map: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3.5l4.5-1.5 5 1.5 4.5-1.5v10L10.5 13.5 5.5 12 1 13.5V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5.5 2v10M10.5 3.5V13.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
+    files: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3a1 1 0 011-1h4l2 2h4a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
     notes: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 6h6M5 8.5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
     settings: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.2 3.2l.85.85M11.95 11.95l.85.85M3.2 12.8l.85-.85M11.95 4.05l.85-.85" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
   };
@@ -133,7 +134,7 @@ const RenameModal = ({ accent, project, onClose, onSave }) => {
   );
 };
 
-const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete }) => {
+const ProjectList = ({ accent, projects, onOpen, onCreate, onUpdateProject, onDelete }) => {
   const rgb = hexToRgb(accent);
   const [menuOpen, setMenuOpen] = useState(null);
   const [renaming, setRenaming] = useState(null);
@@ -190,8 +191,194 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete })
       </div>
     )}
     </div>
-    {renaming && <RenameModal accent={accent} project={renaming} onClose={() => setRenaming(null)} onSave={name => { onRename(renaming.id, name); setRenaming(null); }} />}
+    {renaming && <RenameModal accent={accent} project={renaming} onClose={() => setRenaming(null)} onSave={name => { onUpdateProject(renaming.id, { name }); setRenaming(null); }} />}
     </>
+  );
+};
+
+const MapTab = ({ accent, activeProject, session, onUpdateProject }) => {
+  const rgb = hexToRgb(accent);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const containerRef = useRef(null);
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleNativeWheel = (e) => {
+      e.preventDefault();
+      const scaleAmount = -e.deltaY * 0.001;
+      setTransform(t => ({
+        ...t,
+        scale: Math.min(Math.max(0.1, t.scale + scaleAmount), 10)
+      }));
+    };
+
+    container.addEventListener("wheel", handleNativeWheel, { passive: false });
+    return () => container.removeEventListener("wheel", handleNativeWheel);
+  }, []);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    setTransform(t => ({ ...t, x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }));
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const onDragOver = (e) => { e.preventDefault(); setIsDraggingOver(true); };
+  const onDragLeave = () => setIsDraggingOver(false);
+
+  const onDrop = async (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    setUploading(true);
+    const filename = `${Date.now()}_${file.name}`;
+    const filePath = `${session.user.id}/${activeProject.id}/${filename}`;
+
+    const { error } = await supabase.storage.from('campaign_files').upload(filePath, file);
+    if (!error) {
+      const { data } = supabase.storage.from('campaign_files').getPublicUrl(filePath);
+      onUpdateProject(activeProject.id, { map_url: data.publicUrl });
+      setTransform({ x: 0, y: 0, scale: 1 }); // reset view on new map
+    }
+    setUploading(false);
+  };
+
+  return (
+    <div ref={containerRef}
+    onDragOver={onDragOver}
+    onDragLeave={onDragLeave}
+    onDrop={onDrop}
+    onMouseDown={handleMouseDown}
+    onMouseMove={handleMouseMove}
+    onMouseUp={handleMouseUp}
+    onMouseLeave={handleMouseUp}
+    style={{ height: "100%", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", cursor: isDragging ? "grabbing" : (activeProject.map_url ? "grab" : "default") }}>
+
+    {activeProject.map_url ? (
+      <img
+      src={activeProject.map_url}
+      alt="World Map"
+      draggable={false}
+      style={{
+        position: "absolute",
+        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+                              transition: isDragging ? "none" : "transform 0.1s ease-out",
+                              maxWidth: "none",
+                              maxHeight: "none",
+                              transformOrigin: "center"
+      }}
+      />
+    ) : (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", opacity: isDraggingOver ? 1 : 0.4, pointerEvents: "none" }}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 002-2v-4M17 8l-5-5-5 5M12 3v12" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <p style={{ fontFamily: mono, fontSize: "12px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>
+      {uploading ? "uploading map..." : "drag and drop your world map here"}
+      </p>
+      </div>
+    )}
+
+    {isDraggingOver && activeProject.map_url && (
+      <div style={{ position: "absolute", inset: 0, background: `rgba(${rgb}, 0.2)`, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <p style={{ fontFamily: mono, fontSize: "14px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0, background: "#0e0e0e", padding: "12px 24px", borderRadius: "8px", border: `1px solid rgba(${rgb}, 0.5)` }}>drop to replace map</p>
+      </div>
+    )}
+    </div>
+  );
+};
+
+const FilesTab = ({ accent, session, activeProject, onUpdateProject }) => {
+  const rgb = hexToRgb(accent);
+  const [files, setFiles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+
+  const loadFiles = async () => {
+    setLoading(true);
+    const { data } = await supabase.storage.from('campaign_files').list(`${session.user.id}/${activeProject.id}`);
+    if (data) setFiles(data.filter(f => f.name !== '.emptyFolderPlaceholder'));
+    setLoading(false);
+  };
+
+  useEffect(() => { loadFiles(); }, [activeProject.id]);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    const filePath = `${session.user.id}/${activeProject.id}/${Date.now()}_${file.name}`;
+    await supabase.storage.from('campaign_files').upload(filePath, file);
+    setUploading(false);
+    loadFiles();
+  };
+
+  const handleDelete = async (filename) => {
+    await supabase.storage.from('campaign_files').remove([`${session.user.id}/${activeProject.id}/${filename}`]);
+    const { data: publicUrlData } = supabase.storage.from('campaign_files').getPublicUrl(`${session.user.id}/${activeProject.id}/${filename}`);
+    if (activeProject.map_url === publicUrlData.publicUrl) {
+      onUpdateProject(activeProject.id, { map_url: null });
+    }
+    loadFiles();
+  };
+
+  const formatBytes = (bytes) => {
+    if (!+bytes) return '0 Bytes';
+    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  };
+
+  return (
+    <div style={{ padding: "32px 28px", display: "flex", flexDirection: "column", gap: "24px", height: "100%", overflowY: "auto" }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>campaign files</p>
+    <label style={{ display: "flex", alignItems: "center", gap: "6px", background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "6px", color: accent, fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "7px 14px", cursor: uploading ? "not-allowed" : "pointer", transition: "all 0.15s", opacity: uploading ? 0.5 : 1 }}
+    onMouseEnter={e => !uploading && (e.currentTarget.style.background = `rgba(${rgb},0.18)`)}
+    onMouseLeave={e => !uploading && (e.currentTarget.style.background = `rgba(${rgb},0.1)`)}>
+    {uploading ? "uploading..." : "+ upload"}
+    <input type="file" onChange={handleUpload} style={{ display: "none" }} disabled={uploading} />
+    </label>
+    </div>
+
+    {loading ? (
+      <p style={{ fontFamily: mono, fontSize: "10px", color: `rgba(${rgb},0.4)`, textTransform: "uppercase", letterSpacing: "0.15em", animation: "pulse 1.5s infinite" }}>loading files...</p>
+    ) : files.length === 0 ? (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", opacity: 0.3 }}>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-7-7z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no files uploaded</p>
+      </div>
+    ) : (
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      {files.map(f => (
+        <div key={f.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", overflow: "hidden" }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: accent, flexShrink: 0 }}><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-7-7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <div style={{ display: "flex", flexDirection: "column", gap: "4px", overflow: "hidden" }}>
+        <span style={{ fontFamily: mono, fontSize: "12px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name.replace(/^\d+_/, '')}</span>
+        <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>{formatBytes(f.metadata?.size)}</span>
+        </div>
+        </div>
+        <button onClick={() => handleDelete(f.name)} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.5)", cursor: "pointer", padding: "8px", borderRadius: "6px", transition: "all 0.15s" }}
+        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,80,80,0.1)"; e.currentTarget.style.color = "rgba(255,80,80,0.9)"; }}
+        onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "rgba(255,80,80,0.5)"; }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+        </div>
+      ))}
+      </div>
+    )}
+    </div>
   );
 };
 
@@ -290,10 +477,10 @@ export default function Saturn() {
         setShowCreateModal(false);
       };
 
-      const handleRenameProject = async (id, name) => {
-        await supabase.from("projects").update({ name }).eq("id", id);
-        setProjects(prev => prev.map(p => p.id === id ? { ...p, name } : p));
-        if (activeProject?.id === id) setActiveProject(prev => ({ ...prev, name }));
+      const handleUpdateProject = async (id, updates) => {
+        await supabase.from("projects").update(updates).eq("id", id);
+        setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+        if (activeProject?.id === id) setActiveProject(prev => ({ ...prev, ...updates }));
       };
 
       const handleDeleteProject = async (id) => {
@@ -383,6 +570,10 @@ export default function Saturn() {
             <div style={{ flex: 1, overflow: "hidden" }}>
             {activeTab === "settings" ? (
               <SettingsTab accent={accent} setAccentAndSave={setAccentAndSave} user={session.user} onSignOut={handleSignOut} />
+            ) : activeTab === "map" ? (
+              <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateProject={handleUpdateProject} />
+            ) : activeTab === "files" ? (
+              <FilesTab accent={accent} session={session} activeProject={activeProject} onUpdateProject={handleUpdateProject} />
             ) : (
               <PlaceholderTab name={activeTab} accent={accent} />
             )}
@@ -390,7 +581,7 @@ export default function Saturn() {
             </>
           ) : (
             <div style={{ flex: 1, overflow: "hidden" }}>
-            <ProjectList accent={accent} projects={projects} onOpen={setActiveProject} onCreate={() => setShowCreateModal(true)} onRename={handleRenameProject} onDelete={handleDeleteProject} />
+            <ProjectList accent={accent} projects={projects} onOpen={setActiveProject} onCreate={() => setShowCreateModal(true)} onUpdateProject={handleUpdateProject} onDelete={handleDeleteProject} />
             </div>
           )}
 
