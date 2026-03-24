@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 const defaultColor = "#fb4f2b";
-const tabs = ["music", "map", "files", "notes", "settings"];
+const tabs = ["music", "map", "notes", "files", "settings"];
 const mono = "'Courier New', monospace";
 
 const hexToRgb = (hex) => {
@@ -74,10 +74,6 @@ const LoginScreen = ({ accent }) => {
     <GoogleIcon />
     {loading ? "redirecting..." : "sign in with google"}
     </button>
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-    <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", color: "rgba(255,255,255,0.15)", textTransform: "uppercase", margin: 0, textAlign: "center" }}>your settings sync across devices</p>
-    <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", color: "rgba(255,255,255,0.15)", margin: 0, textAlign: "center" }}>by ko1ouh :]</p>
-    </div>
     </div>
     </div>
   );
@@ -151,45 +147,28 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onUpdateProject, onDe
     </button>
     </div>
 
-    {projects.length === 0 ? (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", opacity: 0.3 }}>
-      <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke={accent} strokeWidth="1.5"/><path d="M24 18v12M18 24h12" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/></svg>
-      <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no campaigns yet</p>
-      <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0 }}>click + new to create one</p>
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+    {projects.map(p => (
+      <div key={p.id} style={{ position: "relative", display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", cursor: "pointer", transition: "all 0.15s" }}
+      onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`; }}
+      onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; }}
+      onClick={() => onOpen(p)}>
+      <div style={{ width: "38px", height: "38px", borderRadius: "8px", background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.2)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent, flexShrink: 0 }}>
+      <ProjectIcon iconId={p.icon} size={20} color={accent} />
       </div>
-    ) : (
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-      {projects.map(p => (
-        <div key={p.id} style={{ position: "relative", display: "flex", alignItems: "center", gap: "14px", padding: "14px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px", cursor: "pointer", transition: "all 0.15s" }}
-        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`; }}
-        onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.03)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; }}
-        onClick={() => onOpen(p)}>
-        <div style={{ width: "38px", height: "38px", borderRadius: "8px", background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.2)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent, flexShrink: 0 }}>
-        <ProjectIcon iconId={p.icon} size={20} color={accent} />
+      <span style={{ fontFamily: mono, fontSize: "13px", color: "rgba(255,255,255,0.8)", flex: 1, letterSpacing: "0.05em" }}>{p.name}</span>
+      <div style={{ position: "relative" }} onClick={e => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}>
+      <button style={{ background: "none", border: "none", color: "rgba(255,255,255,0.25)", cursor: "pointer", padding: "4px 8px", borderRadius: "4px", fontSize: "16px", lineHeight: 1 }}>···</button>
+      {menuOpen === p.id && (
+        <div style={{ position: "absolute", right: 0, top: "28px", zIndex: 10, background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "6px", minWidth: "130px", display: "flex", flexDirection: "column", gap: "2px" }}>
+        <button onClick={e => { e.stopPropagation(); setRenaming(p); setMenuOpen(null); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontFamily: mono, fontSize: "10px", padding: "8px 10px", cursor: "pointer", textAlign: "left" }}>rename</button>
+        <button onClick={e => { e.stopPropagation(); onDelete(p.id); setMenuOpen(null); }} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.6)", fontFamily: mono, fontSize: "10px", padding: "8px 10px", cursor: "pointer", textAlign: "left" }}>delete</button>
         </div>
-        <span style={{ fontFamily: mono, fontSize: "13px", color: "rgba(255,255,255,0.8)", flex: 1, letterSpacing: "0.05em" }}>{p.name}</span>
-        <div style={{ position: "relative" }} onClick={e => { e.stopPropagation(); setMenuOpen(menuOpen === p.id ? null : p.id); }}>
-        <button style={{ background: "none", border: "none", color: "rgba(255,255,255,0.25)", cursor: "pointer", padding: "4px 8px", borderRadius: "4px", fontSize: "16px", lineHeight: 1 }}
-        onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
-        onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.25)"}>···</button>
-        {menuOpen === p.id && (
-          <>
-          <div onClick={e => { e.stopPropagation(); setMenuOpen(null); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
-          <div style={{ position: "absolute", right: 0, top: "28px", zIndex: 10, background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "6px", minWidth: "130px", display: "flex", flexDirection: "column", gap: "2px" }}>
-          <button onClick={e => { e.stopPropagation(); setMenuOpen(null); setRenaming(p); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", padding: "8px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left", transition: "background 0.15s" }}
-          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}
-          onMouseLeave={e => e.currentTarget.style.background = "none"}>rename</button>
-          <button onClick={e => { e.stopPropagation(); setMenuOpen(null); onDelete(p.id); }} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", padding: "8px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left", transition: "background 0.15s" }}
-          onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.08)"}
-          onMouseLeave={e => e.currentTarget.style.background = "none"}>delete</button>
-          </div>
-          </>
-        )}
-        </div>
-        </div>
-      ))}
+      )}
       </div>
-    )}
+      </div>
+    ))}
+    </div>
     </div>
     {renaming && <RenameModal accent={accent} project={renaming} onClose={() => setRenaming(null)} onSave={name => { onUpdateProject(renaming.id, { name }); setRenaming(null); }} />}
     </>
@@ -197,242 +176,239 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onUpdateProject, onDe
 };
 
 const MapTab = ({ accent, activeProject, session, onUpdateProject }) => {
-  const rgb = hexToRgb(accent);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const containerRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleNativeWheel = (e) => {
-      e.preventDefault();
-      const scaleAmount = -e.deltaY * 0.001;
-      setTransform(t => ({
-        ...t,
-        scale: Math.min(Math.max(0.1, t.scale + scaleAmount), 10)
-      }));
-    };
-
-    container.addEventListener("wheel", handleNativeWheel, { passive: false });
-    return () => container.removeEventListener("wheel", handleNativeWheel);
-  }, []);
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    setTransform(t => ({ ...t, x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }));
-  };
-
-  const handleMouseUp = () => setIsDragging(false);
-
-  const onDragOver = (e) => { e.preventDefault(); setIsDraggingOver(true); };
-  const onDragLeave = () => setIsDraggingOver(false);
-
   const onDrop = async (e) => {
     e.preventDefault();
-    setIsDraggingOver(false);
     const file = e.dataTransfer.files[0];
     if (!file || !file.type.startsWith('image/')) return;
-
     setUploading(true);
-    const filename = `${Date.now()}_${file.name}`;
-    const filePath = `${session.user.id}/${activeProject.id}/${filename}`;
-
+    const filePath = `${session.user.id}/${activeProject.id}/${Date.now()}_${file.name}`;
     const { error } = await supabase.storage.from('campaign_files').upload(filePath, file);
     if (!error) {
       const { data } = supabase.storage.from('campaign_files').getPublicUrl(filePath);
       onUpdateProject(activeProject.id, { map_url: data.publicUrl });
-      setTransform({ x: 0, y: 0, scale: 1 }); // reset view on new map
     }
     setUploading(false);
   };
 
   return (
     <div ref={containerRef}
-    onDragOver={onDragOver}
-    onDragLeave={onDragLeave}
+    onDragOver={e => e.preventDefault()}
     onDrop={onDrop}
-    onMouseDown={handleMouseDown}
-    onMouseMove={handleMouseMove}
-    onMouseUp={handleMouseUp}
-    onMouseLeave={handleMouseUp}
+    onMouseDown={e => { setIsDragging(true); setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y }); }}
+    onMouseMove={e => isDragging && setTransform(t => ({ ...t, x: e.clientX - dragStart.x, y: e.clientY - dragStart.y }))}
+    onMouseUp={() => setIsDragging(false)}
+    onMouseLeave={() => setIsDragging(false)}
     style={{ height: "100%", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", cursor: isDragging ? "grabbing" : (activeProject.map_url ? "grab" : "default") }}>
-
     {activeProject.map_url ? (
-      <img
-      src={activeProject.map_url}
-      alt="World Map"
-      draggable={false}
-      style={{
-        position: "absolute",
-        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-                              transition: isDragging ? "none" : "transform 0.1s ease-out",
-                              maxWidth: "none",
-                              maxHeight: "none",
-                              transformOrigin: "center"
-      }}
-      />
+      <img src={activeProject.map_url} alt="Map" draggable={false} style={{ position: "absolute", transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`, transition: isDragging ? "none" : "transform 0.1s ease-out" }} />
     ) : (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px", opacity: isDraggingOver ? 1 : 0.4, pointerEvents: "none" }}>
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 002-2v-4M17 8l-5-5-5 5M12 3v12" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      <p style={{ fontFamily: mono, fontSize: "12px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>
-      {uploading ? "uploading map..." : "drag and drop your world map here"}
-      </p>
-      </div>
-    )}
-
-    {isDraggingOver && activeProject.map_url && (
-      <div style={{ position: "absolute", inset: 0, background: `rgba(${rgb}, 0.2)`, zIndex: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <p style={{ fontFamily: mono, fontSize: "14px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0, background: "#0e0e0e", padding: "12px 24px", borderRadius: "8px", border: `1px solid rgba(${rgb}, 0.5)` }}>drop to replace map</p>
-      </div>
+      <p style={{ fontFamily: mono, fontSize: "12px", color: accent, opacity: 0.4 }}>{uploading ? "uploading..." : "drag map here"}</p>
     )}
     </div>
   );
 };
 
-const FilesTab = ({ accent, session, activeProject, onUpdateProject }) => {
+const NotesTab = ({ accent, session, activeProject }) => {
   const rgb = hexToRgb(accent);
-  const [files, setFiles] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [activeNoteId, setActiveNoteId] = useState(null);
+  const [activeNote, setActiveNote] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const saveTimeout = useRef(null);
 
-  const loadFiles = async () => {
-    setLoading(true);
-    const { data } = await supabase.storage.from('campaign_files').list(`${session.user.id}/${activeProject.id}`);
-    if (data) setFiles(data.filter(f => f.name !== '.emptyFolderPlaceholder'));
+  const fetchNotes = async () => {
+    const { data } = await supabase.from("notes").select("*").eq("project_id", activeProject.id).order("is_folder", { ascending: false }).order("name", { ascending: true });
+    if (data) setNotes(data);
     setLoading(false);
   };
 
-  useEffect(() => { loadFiles(); }, [activeProject.id]);
+  useEffect(() => { fetchNotes(); }, [activeProject.id]);
 
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploading(true);
-    const filePath = `${session.user.id}/${activeProject.id}/${Date.now()}_${file.name}`;
-    await supabase.storage.from('campaign_files').upload(filePath, file);
-    setUploading(false);
-    loadFiles();
-  };
-
-  const handleDelete = async (filename) => {
-    await supabase.storage.from('campaign_files').remove([`${session.user.id}/${activeProject.id}/${filename}`]);
-    const { data: publicUrlData } = supabase.storage.from('campaign_files').getPublicUrl(`${session.user.id}/${activeProject.id}/${filename}`);
-    if (activeProject.map_url === publicUrlData.publicUrl) {
-      onUpdateProject(activeProject.id, { map_url: null });
+  useEffect(() => {
+    if (activeNoteId) {
+      const n = notes.find(n => n.id === activeNoteId);
+      setActiveNote(n);
+    } else {
+      setActiveNote(null);
     }
-    loadFiles();
+  }, [activeNoteId, notes]);
+
+  const createNote = async (name = "Untitled", isFolder = false, parentId = null) => {
+    const { data } = await supabase.from("notes").insert({ project_id: activeProject.id, user_id: session.user.id, name, is_folder: isFolder, parent_id: parentId, content: isFolder ? "" : `# ${name}\n\n` }).select().single();
+    if (data) {
+      setNotes(prev => [...prev, data]);
+      if (!isFolder) setActiveNoteId(data.id);
+    }
+    return data;
   };
 
-  const formatBytes = (bytes) => {
-    if (!+bytes) return '0 Bytes';
-    const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB'], i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  const handleUpdateContent = (content) => {
+    setActiveNote(prev => ({ ...prev, content }));
+    // Extract first line for title
+    const firstLine = content.split('\n')[0].replace(/^#+\s*/, '').trim() || "Untitled";
+
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    saveTimeout.current = setTimeout(async () => {
+      await supabase.from("notes").update({ content, name: firstLine, updated_at: new Date().toISOString() }).eq("id", activeNote.id);
+      fetchNotes();
+    }, 1000);
   };
 
-  return (
-    <div style={{ padding: "32px 28px", display: "flex", flexDirection: "column", gap: "24px", height: "100%", overflowY: "auto" }}>
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-    <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>campaign files</p>
-    <label style={{ display: "flex", alignItems: "center", gap: "6px", background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "6px", color: accent, fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "7px 14px", cursor: uploading ? "not-allowed" : "pointer", transition: "all 0.15s", opacity: uploading ? 0.5 : 1 }}
-    onMouseEnter={e => !uploading && (e.currentTarget.style.background = `rgba(${rgb},0.18)`)}
-    onMouseLeave={e => !uploading && (e.currentTarget.style.background = `rgba(${rgb},0.1)`)}>
-    {uploading ? "uploading..." : "+ upload"}
-    <input type="file" onChange={handleUpload} style={{ display: "none" }} disabled={uploading} />
-    </label>
-    </div>
+  const handleLinkClick = async (targetName) => {
+    const existing = notes.find(n => !n.is_folder && n.name.toLowerCase() === targetName.toLowerCase());
+    if (existing) {
+      setActiveNoteId(existing.id);
+    } else {
+      const newNote = await createNote(targetName);
+      if (newNote) setActiveNoteId(newNote.id);
+    }
+  };
 
-    {loading ? (
-      <p style={{ fontFamily: mono, fontSize: "10px", color: `rgba(${rgb},0.4)`, textTransform: "uppercase", letterSpacing: "0.15em", animation: "pulse 1.5s infinite" }}>loading files...</p>
-    ) : files.length === 0 ? (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", opacity: 0.3 }}>
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-7-7z" stroke={accent} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-      <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no files uploaded</p>
-      </div>
-    ) : (
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-      {files.map(f => (
-        <div key={f.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "10px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "14px", overflow: "hidden" }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: accent, flexShrink: 0 }}><path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-7-7z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        <div style={{ display: "flex", flexDirection: "column", gap: "4px", overflow: "hidden" }}>
-        <span style={{ fontFamily: mono, fontSize: "12px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name.replace(/^\d+_/, '')}</span>
-        <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>{formatBytes(f.metadata?.size)}</span>
+  const renderContent = (content) => {
+    if (!content) return null;
+    const parts = content.split(/(\[\[.*?\]\])/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('[[') && part.endsWith(']]')) {
+        const name = part.slice(2, -2);
+        return <span key={i} onClick={() => handleLinkClick(name)} style={{ color: accent, textDecoration: "underline", cursor: "pointer" }}>{name}</span>;
+      }
+      return <span key={i} style={{ whiteSpace: "pre-wrap" }}>{part}</span>;
+    });
+  };
+
+  const deleteItem = async (e, id) => {
+    e.stopPropagation();
+    await supabase.from("notes").delete().eq("id", id);
+    if (activeNoteId === id) setActiveNoteId(null);
+    fetchNotes();
+  };
+
+  const NoteTree = ({ parentId = null, depth = 0 }) => {
+    const items = notes.filter(n => n.parent_id === parentId);
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+      {items.map(item => (
+        <div key={item.id}>
+        <div onClick={() => !item.is_folder && setActiveNoteId(item.id)}
+        style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 12px", paddingLeft: `${depth * 16 + 12}px`, cursor: "pointer", borderRadius: "6px", background: activeNoteId === item.id ? `rgba(${rgb},0.15)` : "transparent", color: activeNoteId === item.id ? accent : "rgba(255,255,255,0.6)", transition: "all 0.15s", fontSize: "12px", fontFamily: mono }}>
+        {item.is_folder ? (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z"/></svg>
+        ) : (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        )}
+        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+        <button onClick={(e) => deleteItem(e, item.id)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.1)", cursor: "pointer", fontSize: "10px" }}>×</button>
         </div>
-        </div>
-        <button onClick={() => handleDelete(f.name)} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.5)", cursor: "pointer", padding: "8px", borderRadius: "6px", transition: "all 0.15s" }}
-        onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,80,80,0.1)"; e.currentTarget.style.color = "rgba(255,80,80,0.9)"; }}
-        onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "rgba(255,80,80,0.5)"; }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        </button>
+        {item.is_folder && <NoteTree parentId={item.id} depth={depth + 1} />}
         </div>
       ))}
       </div>
+    );
+  };
+
+  return (
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+    {/* Explorer */}
+    <div style={{ width: "240px", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
+    <div style={{ padding: "16px", display: "flex", gap: "8px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+    <button onClick={() => createNote()} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "#ddd", fontSize: "10px", padding: "6px", fontFamily: mono, cursor: "pointer" }}>+ note</button>
+    <button onClick={() => createNote("New Folder", true)} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "#ddd", fontSize: "10px", padding: "6px", fontFamily: mono, cursor: "pointer" }}>+ folder</button>
+    </div>
+    <div style={{ flex: 1, overflowY: "auto", padding: "12px 0" }}>
+    {loading ? <p style={{ textAlign: "center", fontSize: "10px", color: "rgba(255,255,255,0.2)" }}>loading...</p> : <NoteTree />}
+    </div>
+    </div>
+
+    {/* Editor */}
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
+    {activeNote ? (
+      <>
+      <div style={{ padding: "8px 24px", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "flex-end" }}>
+      <button onClick={() => setIsPreview(!isPreview)} style={{ background: isPreview ? `rgba(${rgb},0.1)` : "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: isPreview ? accent : "rgba(255,255,255,0.4)", fontSize: "10px", padding: "4px 10px", fontFamily: mono, cursor: "pointer" }}>
+      {isPreview ? "editing" : "preview"}
+      </button>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "40px" }}>
+      {isPreview ? (
+        <div style={{ color: "#ddd", fontFamily: mono, fontSize: "14px", lineHeight: "1.6", maxWidth: "800px", margin: "0 auto" }}>
+        {renderContent(activeNote.content)}
+        </div>
+      ) : (
+        <textarea value={activeNote.content} onChange={e => handleUpdateContent(e.target.value)}
+        style={{ width: "100%", height: "100%", background: "none", border: "none", outline: "none", color: "#ddd", fontFamily: mono, fontSize: "14px", lineHeight: "1.6", resize: "none", maxWidth: "800px", margin: "0 auto", display: "block" }}
+        placeholder="Start writing..." />
+      )}
+      </div>
+      </>
+    ) : (
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.2 }}>
+      <p style={{ fontFamily: mono, fontSize: "12px" }}>select or create a note</p>
+      </div>
     )}
+    </div>
     </div>
   );
 };
 
-const PlaceholderTab = ({ name, accent }) => (
-  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px", opacity: 0.35, userSelect: "none" }}>
-  <div style={{ width: "64px", height: "64px", border: `2px solid ${accent}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
-  <TabIcon tab={name} />
-  </div>
-  <p style={{ fontFamily: mono, fontSize: "12px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>{name} — coming soon</p>
-  </div>
-);
+const FilesTab = ({ accent, session, activeProject }) => {
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const loadFiles = async () => {
+    const { data } = await supabase.storage.from('campaign_files').list(`${session.user.id}/${activeProject.id}`);
+    if (data) setFiles(data.filter(f => f.name !== '.emptyFolderPlaceholder'));
+  };
+    useEffect(() => { loadFiles(); }, [activeProject.id]);
+
+    const handleUpload = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setUploading(true);
+      const filePath = `${session.user.id}/${activeProject.id}/${Date.now()}_${file.name}`;
+      await supabase.storage.from('campaign_files').upload(filePath, file);
+      setUploading(false); loadFiles();
+    };
+
+    return (
+      <div style={{ padding: "32px 28px" }}>
+      <label style={{ cursor: "pointer", color: accent, fontFamily: mono, fontSize: "12px" }}>
+      {uploading ? "uploading..." : "+ upload file"}
+      <input type="file" onChange={handleUpload} style={{ display: "none" }} />
+      </label>
+      <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+      {files.map(f => (
+        <div key={f.id} style={{ padding: "10px", background: "rgba(255,255,255,0.03)", borderRadius: "6px", fontFamily: mono, fontSize: "12px", color: "#aaa" }}>{f.name.replace(/^\d+_/, '')}</div>
+      ))}
+      </div>
+      </div>
+    );
+};
 
 const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
   const presets = ["#fb4f2b", "#e63946", "#f4a261", "#2ec4b6", "#8338ec", "#06d6a0", "#118ab2"];
-  const rgb = hexToRgb(accent);
   return (
-    <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", gap: "32px", overflowY: "hidden", height: "100%" }}>
+    <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", gap: "32px" }}>
     <div>
     <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 16px" }}>primary color</p>
-    <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-    <input type="color" value={accent} onChange={e => setAccentAndSave(e.target.value)} style={{ width: "48px", height: "48px", border: "none", borderRadius: "8px", cursor: "pointer", padding: 0, background: "none" }} />
-    <input type="text" value={accent} onChange={e => { const v = e.target.value; if (/^#[0-9a-fA-F]{0,6}$/.test(v)) setAccentAndSave(v); }} style={{ background: "rgba(255,255,255,0.04)", border: `1px solid rgba(${rgb},0.3)`, borderRadius: "6px", color: "#ccc", fontFamily: mono, fontSize: "14px", padding: "10px 14px", width: "120px", outline: "none" }} />
+    <div style={{ display: "flex", gap: "10px" }}>
+    {presets.map(c => <button key={c} onClick={() => setAccentAndSave(c)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: c, border: accent === c ? "2px solid #fff" : "none", cursor: "pointer" }} />)}
     </div>
     </div>
-    <div>
-    <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 16px" }}>presets</p>
-    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-    {presets.map(c => <button key={c} onClick={() => setAccentAndSave(c)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: c, border: accent === c ? "3px solid #fff" : "3px solid transparent", cursor: "pointer", outline: "none", transition: "transform 0.15s", transform: accent === c ? "scale(1.15)" : "scale(1)" }} />)}
-    </div>
-    </div>
-    <div>
-    <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 16px" }}>preview</p>
-    <div style={{ padding: "16px 20px", borderRadius: "8px", border: `1px solid rgba(${rgb},0.25)`, background: `rgba(${rgb},0.06)`, display: "flex", alignItems: "center", gap: "12px" }}>
-    <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: accent }} />
-    <span style={{ fontFamily: mono, fontSize: "13px", color: accent }}>saturn — dm toolkit</span>
-    </div>
-    </div>
-    <div style={{ marginTop: "auto", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-    <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", margin: "0 0 12px" }}>account</p>
-    <p style={{ fontFamily: mono, fontSize: "11px", color: "rgba(255,255,255,0.4)", margin: "0 0 16px" }}>{user?.email}</p>
-    <button onClick={onSignOut} style={{ background: "none", border: "1px solid rgba(255,80,80,0.2)", borderRadius: "6px", color: "rgba(255,100,100,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "7px 14px", cursor: "pointer" }}
-    onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.5)"; e.currentTarget.style.color = "rgba(255,100,100,0.9)"; }}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.2)"; e.currentTarget.style.color = "rgba(255,100,100,0.6)"; }}>sign out</button>
-    </div>
+    <button onClick={onSignOut} style={{ alignSelf: "flex-start", background: "none", border: "1px solid rgba(255,80,80,0.2)", borderRadius: "6px", color: "rgba(255,100,100,0.6)", fontFamily: mono, fontSize: "10px", padding: "7px 14px", cursor: "pointer" }}>sign out</button>
     </div>
   );
 };
 
 export default function Saturn() {
   const [session, setSession] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("music");
+  const [activeTab, setActiveTab] = useState("notes");
   const [accent, setAccent] = useState(defaultColor);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [projects, setProjects] = useState([]);
   const [activeProject, setActiveProject] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -440,36 +416,19 @@ export default function Saturn() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setAuthLoading(false);
       if (session) { loadSettings(session.user.id); loadProjects(session.user.id); }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) { loadSettings(session.user.id); loadProjects(session.user.id); }
-    });
-    return () => subscription.unsubscribe();
   }, []);
 
-  const loadSettings = async (userId) => {
-    const { data } = await supabase.from("user_settings").select("accent_color").eq("id", userId).single();
+  const loadSettings = async (uid) => {
+    const { data } = await supabase.from("user_settings").select("accent_color").eq("id", uid).single();
     if (data?.accent_color) setAccent(data.accent_color);
   };
 
-    const loadProjects = async (userId) => {
-      const { data } = await supabase.from("projects").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+    const loadProjects = async (uid) => {
+      const { data } = await supabase.from("projects").select("*").eq("user_id", uid).order("created_at", { ascending: false });
       if (data) setProjects(data);
     };
-
-      const setAccentAndSave = async (color) => {
-        setAccent(color);
-        if (!session) return;
-        await supabase.from("user_settings").upsert({ id: session.user.id, accent_color: color });
-      };
-
-      const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        setSession(null); setAccent(defaultColor); setProjects([]); setActiveProject(null);
-      };
 
       const handleCreateProject = async ({ name, icon }) => {
         const { data } = await supabase.from("projects").insert({ user_id: session.user.id, name, icon }).select().single();
@@ -477,128 +436,39 @@ export default function Saturn() {
         setShowCreateModal(false);
       };
 
-      const handleUpdateProject = async (id, updates) => {
-        await supabase.from("projects").update(updates).eq("id", id);
-        setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-        if (activeProject?.id === id) setActiveProject(prev => ({ ...prev, ...updates }));
-      };
+      if (!session) return <LoginScreen accent={accent} />;
+      const rgb = hexToRgb(accent);
 
-      const handleDeleteProject = async (id) => {
-        await supabase.from("projects").delete().eq("id", id);
-        setProjects(prev => prev.filter(p => p.id !== id));
-        if (activeProject?.id === id) setActiveProject(null);
-      };
+      return (
+        <div style={{ position: "fixed", inset: 0, background: "#0e0e0e", display: "flex", flexDirection: "column" }}>
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+        <span style={{ fontFamily: mono, fontSize: "22px", fontWeight: "700", color: accent }}>◉ SATURN</span>
+        {activeProject && <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>/ {activeProject.name}</span>}
+        </div>
+        {activeProject && <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "10px", fontFamily: mono }}>EXIT CAMPAIGN</button>}
+        </div>
 
-        const rgb = hexToRgb(accent);
-
-        if (authLoading) return (
-          <div style={{ position: "fixed", inset: 0, background: "#0e0e0e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <span style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.25em", color: `rgba(${rgb},0.4)`, textTransform: "uppercase", animation: "pulse 1.5s infinite" }}>loading...</span>
-          <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.2}}`}</style>
-          </div>
-        );
-
-        if (!session) return <LoginScreen accent={accent} />;
-
-        const AvatarButton = () => (
-          <div style={{ position: "relative", cursor: "pointer" }} onClick={() => setProfileMenuOpen(o => !o)}>
-          {session.user?.user_metadata?.avatar_url ? (
-            <img src={session.user.user_metadata.avatar_url} alt="profile" style={{ width: "30px", height: "30px", borderRadius: "50%", border: `1px solid rgba(${rgb},${profileMenuOpen ? "0.8" : "0.4"})`, objectFit: "cover", display: "block", transition: "border-color 0.2s" }} />
-          ) : (
-            <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: `rgba(${rgb},0.2)`, border: `1px solid rgba(${rgb},${profileMenuOpen ? "0.8" : "0.4"})`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: mono, fontSize: "11px", color: accent }}>
-            {session.user?.email?.[0]?.toUpperCase()}
-            </div>
-          )}
-          {profileMenuOpen && (
-            <>
-            <div onClick={e => { e.stopPropagation(); setProfileMenuOpen(false); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
-            <div style={{ position: "absolute", top: "38px", right: 0, zIndex: 10, background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", padding: "8px", minWidth: "180px", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase", margin: "0 0 6px", padding: "0 8px" }}>{session.user?.email}</p>
-            <button onClick={e => { e.stopPropagation(); setProfileMenuOpen(false); handleSignOut(); }} style={{ background: "none", border: "none", borderRadius: "6px", color: "rgba(255,100,100,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "8px", cursor: "pointer", textAlign: "left" }}
-            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.08)"}
-            onMouseLeave={e => e.currentTarget.style.background = "none"}>sign out</button>
-            </div>
-            </>
-          )}
-          </div>
-        );
-
-        return (
+        {activeProject ? (
           <>
-          <div style={{ position: "fixed", inset: 0, background: "#0e0e0e", overflow: "hidden", display: "flex", flexDirection: "column", fontFamily: "sans-serif" }}>
-          {/* Header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {activeProject && (
-            <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
-            onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
-            onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </button>
-          )}
-          <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
-          <span style={{ fontFamily: mono, fontSize: "22px", fontWeight: "700", letterSpacing: "0.12em", color: accent, textShadow: `0 0 24px rgba(${rgb},0.5)` }}>◉ SATURN</span>
-          {activeProject ? (
-            <span style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "6px" }}>
-            <ProjectIcon iconId={activeProject.icon} size={12} color="rgba(255,255,255,0.4)" />
-            {activeProject.name}
-            </span>
-          ) : (
-            <span style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.25)", textTransform: "uppercase" }}>dm toolkit</span>
-          )}
+          <div style={{ display: "flex", padding: "0 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)" }}>
+          {tabs.map(tab => (
+            <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: "12px 16px", background: "none", border: "none", borderBottom: activeTab === tab ? `2px solid ${accent}` : "2px solid transparent", color: activeTab === tab ? accent : "rgba(255,255,255,0.3)", cursor: "pointer", fontFamily: mono, fontSize: "11px", textTransform: "uppercase" }}>{tab}</button>
+          ))}
           </div>
+          <div style={{ flex: 1, overflow: "hidden" }}>
+          {activeTab === "notes" && <NotesTab accent={accent} session={session} activeProject={activeProject} />}
+          {activeTab === "map" && <MapTab accent={accent} session={session} activeProject={activeProject} onUpdateProject={(id, u) => setActiveProject({...activeProject, ...u})} />}
+          {activeTab === "files" && <FilesTab accent={accent} session={session} activeProject={activeProject} />}
+          {activeTab === "settings" && <SettingsTab accent={accent} setAccentAndSave={setAccent} user={session.user} onSignOut={() => setSession(null)} />}
+          {(activeTab === "music") && <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:'100%', opacity:0.3, fontFamily:mono, fontSize:'12px'}}>{activeTab} coming soon</div>}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: accent, boxShadow: `0 0 8px ${accent}`, animation: "pulse 2s infinite" }} />
-          <AvatarButton />
-          </div>
-          </div>
-
-          {activeProject ? (
-            <>
-            <div style={{ display: "flex", gap: "2px", padding: "0 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", overflowX: "hidden", flexShrink: 0 }}>
-            {tabs.map(tab => {
-              const isActive = activeTab === tab;
-              return (
-                <button key={tab} onClick={() => setActiveTab(tab)} style={{ display: "flex", alignItems: "center", gap: "7px", padding: "12px 16px", background: "none", border: "none", borderBottom: isActive ? `2px solid ${accent}` : "2px solid transparent", color: isActive ? accent : "rgba(255,255,255,0.3)", cursor: "pointer", fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", transition: "color 0.2s, border-color 0.2s", marginBottom: "-1px", whiteSpace: "nowrap", flexShrink: 0 }}>
-                <TabIcon tab={tab} />
-                <span className="tab-label">{tab}</span>
-                </button>
-              );
-            })}
-            </div>
-            <div style={{ flex: 1, overflow: "hidden" }}>
-            {activeTab === "settings" ? (
-              <SettingsTab accent={accent} setAccentAndSave={setAccentAndSave} user={session.user} onSignOut={handleSignOut} />
-            ) : activeTab === "map" ? (
-              <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateProject={handleUpdateProject} />
-            ) : activeTab === "files" ? (
-              <FilesTab accent={accent} session={session} activeProject={activeProject} onUpdateProject={handleUpdateProject} />
-            ) : (
-              <PlaceholderTab name={activeTab} accent={accent} />
-            )}
-            </div>
-            </>
-          ) : (
-            <div style={{ flex: 1, overflow: "hidden" }}>
-            <ProjectList accent={accent} projects={projects} onOpen={setActiveProject} onCreate={() => setShowCreateModal(true)} onUpdateProject={handleUpdateProject} onDelete={handleDeleteProject} />
-            </div>
-          )}
-
-          {/* Footer */}
-          <div style={{ padding: "10px 24px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.12)", textTransform: "uppercase" }}>v0.3.3</span>
-          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: `rgba(${rgb},0.3)`, textTransform: "uppercase" }}>session active</span>
-          </div>
-          </div>
-
-          {showCreateModal && <CreateProjectModal accent={accent} onClose={() => setShowCreateModal(false)} onSave={handleCreateProject} />}
-
-          <style>{`
-            @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-            *{box-sizing:border-box;}
-            @media(max-width:400px){.tab-label{display:none}}
-            `}</style>
-            </>
-        );
+          </>
+        ) : (
+          <ProjectList accent={accent} projects={projects} onOpen={setActiveProject} onCreate={() => setShowCreateModal(true)} />
+        )}
+        {showCreateModal && <CreateProjectModal accent={accent} onClose={() => setShowCreateModal(false)} onSave={handleCreateProject} />}
+        </div>
+      );
 }
