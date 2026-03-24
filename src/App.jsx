@@ -321,6 +321,7 @@ export default function Saturn() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("music");
   const [accent, setAccent] = useState(defaultColor);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -416,41 +417,105 @@ export default function Saturn() {
             dm toolkit
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", position: "relative" }}>
           <div style={{
             width: "8px", height: "8px", borderRadius: "50%",
             background: accent, boxShadow: `0 0 8px ${accent}`,
             animation: "pulse 2s infinite",
           }} />
-          {session.user?.user_metadata?.avatar_url ? (
-            <img
-              src={session.user.user_metadata.avatar_url}
-              alt="profile"
-              style={{
+          <div
+            onClick={() => setProfileMenuOpen(o => !o)}
+            style={{ cursor: "pointer", position: "relative" }}
+          >
+            {session.user?.user_metadata?.avatar_url ? (
+              <img
+                src={session.user.user_metadata.avatar_url}
+                alt="profile"
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  border: `1px solid rgba(${rgb}, ${profileMenuOpen ? "0.8" : "0.4"})`,
+                  objectFit: "cover",
+                  display: "block",
+                  transition: "border-color 0.2s",
+                }}
+              />
+            ) : (
+              <div style={{
                 width: "30px",
                 height: "30px",
                 borderRadius: "50%",
-                border: `1px solid rgba(${rgb}, 0.4)`,
-                objectFit: "cover",
-              }}
-            />
-          ) : (
-            <div style={{
-              width: "30px",
-              height: "30px",
-              borderRadius: "50%",
-              background: `rgba(${rgb}, 0.2)`,
-              border: `1px solid rgba(${rgb}, 0.4)`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "'Courier New', monospace",
-              fontSize: "11px",
-              color: accent,
-            }}>
-              {session.user?.email?.[0]?.toUpperCase()}
-            </div>
-          )}
+                background: `rgba(${rgb}, 0.2)`,
+                border: `1px solid rgba(${rgb}, ${profileMenuOpen ? "0.8" : "0.4"})`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "'Courier New', monospace",
+                fontSize: "11px",
+                color: accent,
+                transition: "border-color 0.2s",
+              }}>
+                {session.user?.email?.[0]?.toUpperCase()}
+              </div>
+            )}
+
+            {profileMenuOpen && (
+              <>
+                <div
+                  onClick={(e) => { e.stopPropagation(); setProfileMenuOpen(false); }}
+                  style={{ position: "fixed", inset: 0, zIndex: 9 }}
+                />
+                <div style={{
+                  position: "absolute",
+                  top: "38px",
+                  right: 0,
+                  zIndex: 10,
+                  background: "#1a1a1a",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "8px",
+                  padding: "8px",
+                  minWidth: "180px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}>
+                  <p style={{
+                    fontFamily: "'Courier New', monospace",
+                    fontSize: "9px",
+                    letterSpacing: "0.15em",
+                    color: "rgba(255,255,255,0.25)",
+                    textTransform: "uppercase",
+                    margin: "0 0 6px",
+                    padding: "0 8px",
+                  }}>
+                    {session.user?.email}
+                  </p>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setProfileMenuOpen(false); handleSignOut(); }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      borderRadius: "6px",
+                      color: "rgba(255,100,100,0.7)",
+                      fontFamily: "'Courier New', monospace",
+                      fontSize: "10px",
+                      letterSpacing: "0.15em",
+                      textTransform: "uppercase",
+                      padding: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "background 0.15s",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.08)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}
+                  >
+                    sign out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
