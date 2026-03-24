@@ -12,7 +12,7 @@ const hexToRgb = (hex) => {
   return `${r}, ${g}, ${b}`;
 };
 
-// --- ICONS ---
+// --- ICONS & ASSETS ---
 const PROJECT_ICONS = [
   { id: "sword", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 2l4 4-9 9-2 1 1-2 9-9zM2 18l3-3M11 5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
 { id: "skull", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 2.21 1.19 4.14 2.97 5.22L7 15h6l.03-1.78C14.81 12.14 16 10.21 16 8c0-3.314-2.686-6-6-6z" stroke="currentColor" strokeWidth="1.5"/><path d="M7 15v2h6v-2M8 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg> },
@@ -22,8 +22,6 @@ const PROJECT_ICONS = [
 { id: "potion", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3h4M7 7l-3 7a3 3 0 006 0V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M13 7l3 7a3 3 0 01-3 3H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M7 7h6" stroke="currentColor" strokeWidth="1.5"/></svg> },
 { id: "scroll", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="11" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2" stroke="currentColor" strokeWidth="1.5"/><path d="M9 8h5M9 11h5M9 14h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
 { id: "shield", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 2.67 7.33 6 8 3.33-.67 6-4 6-8V5l-6-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-{ id: "flame", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M10 12c0 2-1.5 2.5-1.5 4a1.5 1.5 0 003 0c0-1.5-1.5-2-1.5-4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-{ id: "eye", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/></svg> },
 ];
 
 const TabIcon = ({ tab }) => {
@@ -37,7 +35,7 @@ const TabIcon = ({ tab }) => {
   return icons[tab] || null;
 };
 
-// --- COMPONENTS ---
+// --- CORE COMPONENTS ---
 
 const LoginScreen = ({ accent }) => {
   const rgb = hexToRgb(accent);
@@ -53,26 +51,62 @@ const LoginScreen = ({ accent }) => {
   );
 };
 
-const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete }) => {
-  const rgb = hexToRgb(accent);
+const CreateProjectModal = ({ accent, onClose, onSave }) => {
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("sword");
   return (
-    <div style={{ padding: "40px", maxWidth: "800px", margin: "0 auto", width: "100%" }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
-    <h2 style={{ fontFamily: mono, fontSize: "12px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Your Campaigns</h2>
-    <button onClick={onCreate} style={{ background: `rgba(${rgb},0.1)`, border: `1px solid ${accent}`, borderRadius: "6px", color: accent, padding: "8px 16px", fontFamily: mono, fontSize: "11px", cursor: "pointer" }}>+ NEW CAMPAIGN</button>
-    </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-    {projects.map(p => (
-      <div key={p.id} onClick={() => onOpen(p)} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "20px", cursor: "pointer", display: "flex", alignItems: "center", gap: "20px", transition: "border-color 0.2s" }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`} onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"}>
-      <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: `rgba(${rgb},0.1)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
-      {PROJECT_ICONS.find(i => i.id === p.icon)?.svg}
-      </div>
-      <span style={{ flex: 1, fontFamily: mono, fontSize: "16px", color: "#ddd" }}>{p.name}</span>
-      <button onClick={(e) => { e.stopPropagation(); onDelete(p.id); }} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.4)", cursor: "pointer", fontSize: "10px" }}>DELETE</button>
-      </div>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "32px", width: "400px" }}>
+    <h3 style={{ fontFamily: mono, color: accent, fontSize: "12px", marginBottom: "20px" }}>CREATE CAMPAIGN</h3>
+    <input autoFocus placeholder="Campaign Name" value={name} onChange={e => setName(e.target.value)} style={{ width: "100%", background: "#000", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", padding: "12px", borderRadius: "6px", marginBottom: "20px", fontFamily: mono }} />
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "24px" }}>
+    {PROJECT_ICONS.map(i => (
+      <button key={i.id} onClick={() => setIcon(i.id)} style={{ padding: "10px", background: icon === i.id ? "rgba(255,255,255,0.1)" : "none", border: icon === i.id ? `1px solid ${accent}` : "1px solid transparent", borderRadius: "6px", cursor: "pointer", color: icon === i.id ? accent : "#666" }}>{i.svg}</button>
     ))}
     </div>
+    <div style={{ display: "flex", gap: "10px" }}>
+    <button onClick={onClose} style={{ flex: 1, background: "none", border: "1px solid #333", color: "#666", padding: "10px", borderRadius: "6px", cursor: "pointer", fontFamily: mono }}>CANCEL</button>
+    <button onClick={() => onSave({ name, icon })} style={{ flex: 1, background: accent, border: "none", color: "#fff", padding: "10px", borderRadius: "6px", cursor: "pointer", fontFamily: mono }}>CREATE</button>
+    </div>
+    </div>
+    </div>
+  );
+};
+
+const MapTab = ({ accent, activeProject, session, onUpdateProject }) => {
+  const [uploading, setUploading] = useState(false);
+  const [transform, setTransform] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith("image/")) return;
+    setUploading(true);
+    const path = `${session.user.id}/${activeProject.id}/map_${Date.now()}`;
+    const { error } = await supabase.storage.from("campaign_files").upload(path, file);
+    if (!error) {
+      const { data } = supabase.storage.from("campaign_files").getPublicUrl(path);
+      await onUpdateProject(activeProject.id, { map_url: data.publicUrl });
+    }
+    setUploading(false);
+  };
+
+  return (
+    <div onDragOver={e => e.preventDefault()} onDrop={handleDrop}
+    onMouseDown={e => { setIsDragging(true); setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y }); }}
+    onMouseMove={e => isDragging && setTransform({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y })}
+    onMouseUp={() => setIsDragging(false)}
+    style={{ height: "100%", background: "#050505", overflow: "hidden", position: "relative", cursor: activeProject.map_url ? (isDragging ? "grabbing" : "grab") : "default", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    {activeProject.map_url ? (
+      <img src={activeProject.map_url} draggable={false} style={{ transform: `translate(${transform.x}px, ${transform.y}px)`, transition: isDragging ? "none" : "transform 0.1s" }} alt="Campaign Map" />
+    ) : (
+      <div style={{ textAlign: "center", opacity: 0.3 }}>
+      <div style={{ color: accent, fontSize: "24px", marginBottom: "10px" }}>🗺️</div>
+      <p style={{ fontFamily: mono, fontSize: "11px", color: "#fff" }}>{uploading ? "UPLOADING..." : "DRAG AND DROP MAP IMAGE"}</p>
+      </div>
+    )}
     </div>
   );
 };
@@ -105,14 +139,12 @@ const NotesTab = ({ accent, activeProject, session }) => {
 
       const updateItemName = async (id, newName) => {
         await supabase.from("notes").update({ name: newName }).eq("id", id);
-        setRenamingId(null);
-        fetchNotes();
+        setRenamingId(null); fetchNotes();
       };
 
       const handleUpdateContent = (content) => {
         setActiveNote(prev => ({ ...prev, content }));
         const firstLine = content.split('\n')[0].replace(/^#+\s*/, '').trim() || "Untitled";
-
         if (saveTimeout.current) clearTimeout(saveTimeout.current);
         saveTimeout.current = setTimeout(async () => {
           await supabase.from("notes").update({ content, name: firstLine, updated_at: new Date().toISOString() }).eq("id", activeNote.id);
@@ -120,18 +152,12 @@ const NotesTab = ({ accent, activeProject, session }) => {
         }, 800);
       };
 
-      // --- REWORKED LINK SYSTEM ---
       const handleLinkClick = async (targetName) => {
         const target = notes.find(n => !n.is_folder && n.name.toLowerCase() === targetName.toLowerCase());
-        if (target) {
-          setActiveNoteId(target.id);
-        } else {
-          // Create it
+        if (target) { setActiveNoteId(target.id); }
+        else {
           const { data } = await supabase.from("notes").insert({ project_id: activeProject.id, user_id: session.user.id, name: targetName, content: `# ${targetName}\n\n` }).select().single();
-          if (data) {
-            setNotes(prev => [...prev, data]);
-            setActiveNoteId(data.id);
-          }
+          if (data) { setNotes(prev => [...prev, data]); setActiveNoteId(data.id); }
         }
       };
 
@@ -154,7 +180,7 @@ const NotesTab = ({ accent, activeProject, session }) => {
           {items.map(item => (
             <div key={item.id}>
             <div onClick={() => !item.is_folder && setActiveNoteId(item.id)} className="note-item"
-            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 12px", paddingLeft: `${depth * 16 + 12}px`, cursor: "pointer", borderRadius: "6px", background: activeNoteId === item.id ? `rgba(${rgb},0.12)` : "transparent", color: activeNoteId === item.id ? accent : "rgba(255,255,255,0.6)", fontSize: "12px", fontFamily: mono, transition: "all 0.1s" }}>
+            style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 12px", paddingLeft: `${depth * 16 + 12}px`, cursor: "pointer", borderRadius: "6px", background: activeNoteId === item.id ? `rgba(${rgb},0.12)` : "transparent", color: activeNoteId === item.id ? accent : "rgba(255,255,255,0.6)", fontSize: "12px", fontFamily: mono }}>
             {item.is_folder ? "📁" : "📄"}
             {renamingId === item.id ? (
               <input autoFocus value={tempName} onChange={e => setTempName(e.target.value)} onBlur={() => updateItemName(item.id, tempName)} onKeyDown={e => e.key === "Enter" && updateItemName(item.id, tempName)}
@@ -173,7 +199,6 @@ const NotesTab = ({ accent, activeProject, session }) => {
 
       return (
         <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
-        {/* Sidebar */}
         <div style={{ width: "240px", borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
         <div style={{ padding: "16px", display: "flex", gap: "8px" }}>
         <button onClick={() => createItem("New Note")} style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "#ddd", fontSize: "10px", padding: "6px", cursor: "pointer" }}>+ NOTE</button>
@@ -181,7 +206,6 @@ const NotesTab = ({ accent, activeProject, session }) => {
         </div>
         <div style={{ flex: 1, overflowY: "auto" }}><NoteTree /></div>
         </div>
-        {/* Editor */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {activeNote ? (
           <>
@@ -206,6 +230,64 @@ const NotesTab = ({ accent, activeProject, session }) => {
       );
 };
 
+const FilesTab = ({ accent, activeProject, session }) => {
+  const [files, setFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
+  const fetchFiles = async () => {
+    const { data } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
+    if (data) setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
+  };
+
+    useEffect(() => { fetchFiles(); }, [activeProject.id]);
+
+    const handleUpload = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      setUploading(true);
+      const path = `${session.user.id}/${activeProject.id}/${Date.now()}_${file.name}`;
+      await supabase.storage.from("campaign_files").upload(path, file);
+      setUploading(false); fetchFiles();
+    };
+
+    return (
+      <div style={{ padding: "40px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px" }}>
+      <h3 style={{ fontFamily: mono, color: accent, fontSize: "11px" }}>CAMPAIGN ASSETS</h3>
+      <label style={{ background: `rgba(${hexToRgb(accent)},0.1)`, border: `1px solid ${accent}`, color: accent, padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontFamily: mono, fontSize: "11px" }}>
+      {uploading ? "UPLOADING..." : "+ UPLOAD FILE"}
+      <input type="file" style={{ display: "none" }} onChange={handleUpload} />
+      </label>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+      {files.map(f => (
+        <div key={f.id} style={{ padding: "16px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", fontFamily: mono, fontSize: "11px", color: "#888" }}>
+        <div style={{ color: "#fff", marginBottom: "4px", overflow: "hidden", textOverflow: "ellipsis" }}>{f.name.split("_").slice(1).join("_") || f.name}</div>
+        <div>{(f.metadata.size / 1024).toFixed(1)} KB</div>
+        </div>
+      ))}
+      </div>
+      </div>
+    );
+};
+
+const SettingsTab = ({ accent, onAccentChange, onSignOut }) => {
+  const colors = ["#fb4f2b", "#38bdf8", "#4ade80", "#fbbf24", "#f472b6", "#a78bfa"];
+  return (
+    <div style={{ padding: "40px", maxWidth: "600px" }}>
+    <div style={{ marginBottom: "40px" }}>
+    <h3 style={{ fontFamily: mono, color: accent, fontSize: "11px", marginBottom: "20px" }}>ACCENT COLOR</h3>
+    <div style={{ display: "flex", gap: "12px" }}>
+    {colors.map(c => (
+      <button key={c} onClick={() => onAccentChange(c)} style={{ width: "32px", height: "32px", borderRadius: "50%", background: c, border: accent === c ? "2px solid #fff" : "2px solid transparent", cursor: "pointer" }} />
+    ))}
+    </div>
+    </div>
+    <button onClick={onSignOut} style={{ background: "none", border: "1px solid rgba(255,80,80,0.3)", color: "#ff5050", padding: "10px 20px", borderRadius: "6px", fontFamily: mono, fontSize: "11px", cursor: "pointer" }}>SIGN OUT</button>
+    </div>
+  );
+};
+
 // --- MAIN APP ---
 
 export default function Saturn() {
@@ -219,57 +301,93 @@ export default function Saturn() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) { loadSettings(session.user.id); loadProjects(session.user.id); }
+      if (session) loadProjects(session.user.id);
     });
   }, []);
 
-  const loadSettings = async (uid) => {
-    const { data } = await supabase.from("user_settings").select("accent_color").eq("id", uid).single();
-    if (data?.accent_color) setAccent(data.accent_color);
+  const loadProjects = async (uid) => {
+    const { data } = await supabase.from("projects").select("*").eq("user_id", uid).order("created_at", { ascending: false });
+    if (data) setProjects(data);
   };
 
-    const loadProjects = async (uid) => {
-      const { data } = await supabase.from("projects").select("*").eq("user_id", uid).order("created_at", { ascending: false });
-      if (data) setProjects(data);
+    const handleCreateProject = async ({ name, icon }) => {
+      const { data } = await supabase.from("projects").insert({ user_id: session.user.id, name, icon }).select().single();
+      if (data) { setProjects([data, ...projects]); setActiveProject(data); }
+      setShowCreateModal(false);
     };
 
-      const handleCreateProject = async ({ name, icon }) => {
-        const { data } = await supabase.from("projects").insert({ user_id: session.user.id, name, icon }).select().single();
-        if (data) { setProjects([data, ...projects]); setActiveProject(data); }
-        setShowCreateModal(false);
-      };
+    const handleUpdateProject = async (id, updates) => {
+      const { data } = await supabase.from("projects").update(updates).eq("id", id).select().single();
+      if (data) {
+        setActiveProject(data);
+        setProjects(projects.map(p => p.id === id ? data : p));
+      }
+    };
 
-      if (!session) return <LoginScreen accent={accent} />;
-      const rgb = hexToRgb(accent);
+    if (!session) return <LoginScreen accent={accent} />;
+    const rgb = hexToRgb(accent);
 
-      return (
-        <div style={{ position: "fixed", inset: 0, background: "#0e0e0e", display: "flex", flexDirection: "column" }}>
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-        <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
-        <span style={{ fontFamily: mono, fontSize: "22px", fontWeight: "700", color: accent, textShadow: `0 0 20px rgba(${rgb},0.4)` }}>◉ SATURN</span>
-        {activeProject && <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>/ {activeProject.name}</span>}
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "#0e0e0e", display: "flex", flexDirection: "column", color: "#fff" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 24px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+      <span style={{ fontFamily: mono, fontSize: "22px", fontWeight: "700", color: accent, textShadow: `0 0 20px rgba(${rgb},0.4)` }}>◉ SATURN</span>
+      {activeProject && <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>/ {activeProject.name}</span>}
+      </div>
+      {activeProject && <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.2)", cursor: "pointer", fontSize: "10px", fontFamily: mono }}>EXIT</button>}
+      </div>
+
+      {activeProject ? (
+        <>
+        <div style={{ display: "flex", padding: "0 24px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        {tabs.map(tab => (
+          <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: "14px 18px", background: "none", border: "none", borderBottom: activeTab === tab ? `2px solid ${accent}` : "2px solid transparent", color: activeTab === tab ? accent : "rgba(255,255,255,0.3)", cursor: "pointer", fontFamily: mono, fontSize: "11px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "8px" }}>
+          <TabIcon tab={tab} /> {tab}
+          </button>
+        ))}
         </div>
-        {activeProject && <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.2)", cursor: "pointer", fontSize: "10px", fontFamily: mono }}>EXIT</button>}
+        <div style={{ flex: 1, overflow: "hidden" }}>
+        {activeTab === "notes" && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
+        {activeTab === "map" && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateProject={handleUpdateProject} />}
+        {activeTab === "files" && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
+        {activeTab === "settings" && <SettingsTab accent={accent} onAccentChange={setAccent} onSignOut={() => supabase.auth.signOut().then(() => setSession(null))} />}
+        {activeTab === "music" && <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.2, fontFamily: mono }}>Music Module Offline</div>}
         </div>
-
-        {activeProject ? (
-          <>
-          <div style={{ display: "flex", padding: "0 24px", background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          {tabs.map(tab => (
-            <button key={tab} onClick={() => setActiveTab(tab)} style={{ padding: "14px 18px", background: "none", border: "none", borderBottom: activeTab === tab ? `2px solid ${accent}` : "2px solid transparent", color: activeTab === tab ? accent : "rgba(255,255,255,0.3)", cursor: "pointer", fontFamily: mono, fontSize: "11px", textTransform: "uppercase", display: "flex", alignItems: "center", gap: "8px" }}>
-            <TabIcon tab={tab} /> {tab}
-            </button>
-          ))}
+        </>
+      ) : (
+        <div style={{ padding: "40px", maxWidth: "800px", margin: "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "32px" }}>
+        <h2 style={{ fontFamily: mono, fontSize: "12px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.2em", textTransform: "uppercase" }}>Campaigns</h2>
+        <button onClick={() => setShowCreateModal(true)} style={{ background: `rgba(${rgb},0.1)`, border: `1px solid ${accent}`, borderRadius: "6px", color: accent, padding: "8px 16px", fontFamily: mono, fontSize: "11px", cursor: "pointer" }}>+ NEW</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        {projects.map(p => (
+          <div key={p.id} onClick={() => setActiveProject(p)} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "12px", padding: "20px", cursor: "pointer", display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ width: "40px", height: "40px", borderRadius: "8px", background: `rgba(${rgb},0.1)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
+          {PROJECT_ICONS.find(i => i.id === p.icon)?.svg}
           </div>
-          <div style={{ flex: 1, overflow: "hidden" }}>
-          {activeTab === "notes" && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
-          {activeTab !== "notes" && <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", opacity: 0.2, fontFamily: mono }}>{activeTab} module active</div>}
+          <span style={{ flex: 1, fontFamily: mono, fontSize: "16px" }}>{p.name}</span>
           </div>
-          </>
-        ) : (
-          <ProjectList accent={accent} projects={projects} onOpen={setActiveProject} onCreate={() => setShowCreateModal(true)} onDelete={id => setProjects(projects.filter(p => p.id !== id))} />
-        )}
+        ))}
         </div>
-      );
+        </div>
+      )}
+
+      {/* Footer */}
+      <div style={{ padding: "8px 24px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.1)" }}>v0.4.0</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: accent, boxShadow: `0 0 10px ${accent}`, animation: "pulse 2s infinite" }} />
+      <span style={{ fontFamily: mono, fontSize: "9px", color: `rgba(${rgb},0.5)` }}>SYSTEM READY</span>
+      </div>
+      </div>
+
+      {showCreateModal && <CreateProjectModal accent={accent} onClose={() => setShowCreateModal(false)} onSave={handleCreateProject} />}
+      <style>{`
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+        .note-item:hover { background: rgba(255,255,255,0.05) !important; }
+        `}</style>
+        </div>
+    );
 }
