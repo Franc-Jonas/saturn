@@ -205,7 +205,7 @@ const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
   const presets = ["#fb4f2b", "#e63946", "#f4a261", "#2ec4b6", "#8338ec", "#06d6a0", "#118ab2"];
   const rgb = hexToRgb(accent);
   return (
-    <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", gap: "32px", overflowY: "auto", height: "100%" }}>
+    <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", gap: "32px", overflowY: "hidden", height: "100%" }}>
       <div>
         <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 16px" }}>primary color</p>
         <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
@@ -366,7 +366,7 @@ export default function Saturn() {
 
         {activeProject ? (
           <>
-            <div style={{ display: "flex", gap: "2px", padding: "0 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", overflowX: "auto", flexShrink: 0 }}>
+            <div style={{ display: "flex", gap: "2px", padding: "0 24px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", overflowX: "hidden", flexShrink: 0 }}>
               {tabs.map(tab => {
                 const isActive = activeTab === tab;
                 return (
@@ -393,7 +393,7 @@ export default function Saturn() {
 
         {/* Footer */}
         <div style={{ padding: "10px 24px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.12)", textTransform: "uppercase" }}>v0.3.2</span>
+          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.12)", textTransform: "uppercase" }}>v0.3.3</span>
           <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: `rgba(${rgb},0.3)`, textTransform: "uppercase" }}>session active</span>
         </div>
       </div>
