@@ -261,7 +261,7 @@ export default function Saturn() {
     </div>
 
     {/* Content */}
-    <div style={{ flex: 1, overflow: "auto" }}>
+    <div style={{ flex: 1, overflow: "hidden" }}>
     {activeTab === "settings" ? (
       <SettingsTab accent={accent} setAccent={setAccent} />
     ) : (
