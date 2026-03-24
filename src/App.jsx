@@ -416,11 +416,42 @@ export default function Saturn() {
             dm toolkit
           </span>
         </div>
-        <div style={{
-          width: "8px", height: "8px", borderRadius: "50%",
-          background: accent, boxShadow: `0 0 8px ${accent}`,
-          animation: "pulse 2s infinite",
-        }} />
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{
+            width: "8px", height: "8px", borderRadius: "50%",
+            background: accent, boxShadow: `0 0 8px ${accent}`,
+            animation: "pulse 2s infinite",
+          }} />
+          {session.user?.user_metadata?.avatar_url ? (
+            <img
+              src={session.user.user_metadata.avatar_url}
+              alt="profile"
+              style={{
+                width: "30px",
+                height: "30px",
+                borderRadius: "50%",
+                border: `1px solid rgba(${rgb}, 0.4)`,
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            <div style={{
+              width: "30px",
+              height: "30px",
+              borderRadius: "50%",
+              background: `rgba(${rgb}, 0.2)`,
+              border: `1px solid rgba(${rgb}, 0.4)`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontFamily: "'Courier New', monospace",
+              fontSize: "11px",
+              color: accent,
+            }}>
+              {session.user?.email?.[0]?.toUpperCase()}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}
