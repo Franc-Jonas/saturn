@@ -18,6 +18,7 @@ const ICONS = {
   folder: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
   chevronRight: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>,
   chevronDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>,
+  audio: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /><circle cx="12" cy="12" r="1" fill="currentColor" /></svg>,
 };
 
 const PROJECT_ICONS = [
@@ -230,11 +231,14 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap }) => {
     const file = e.dataTransfer.files[0];
     if (!file || !file.type.startsWith("image/")) return;
     setUploading(true);
-    const path = `${session.user.id}/${activeProject.id}/map_${Date.now()}`;
-    const { error } = await supabase.storage.from("campaign_files").upload(path, file);
+    const ext = file.name.split('.').pop() || 'png';
+    const path = `${session.user.id}/${activeProject.id}/map_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
     if (!error) {
       const { data } = supabase.storage.from("campaign_files").getPublicUrl(path);
       onUpdateMap(data.publicUrl);
+    } else {
+      alert("Map upload failed: " + error.message);
     }
     setUploading(false);
   };
@@ -275,16 +279,27 @@ const NotesTab = ({ accent, activeProject, session }) => {
   const activeNote = notes.find(n => n.id === activeNoteId) || null;
 
   const createItem = async (isFolder = false, parentId = null, customName = null) => {
-    const name = customName || (isFolder ? "New Folder" : "Untitled Note");
-    const { data } = await supabase.from("notes").insert({ project_id: activeProject.id, name, content: "", is_folder: isFolder, parent_id: parentId }).select().single();
-    if (data) {
-      setNotes(prev => [...prev, data]);
-      if (!isFolder) {
-        setActiveNoteId(data.id);
-        setViewMode("edit");
+    try {
+      const name = customName || (isFolder ? "New Folder" : "Untitled Note");
+      const { data, error } = await supabase.from("notes").insert({ project_id: activeProject.id, name, content: "", is_folder: isFolder, parent_id: parentId }).select().single();
+      if (error) {
+        console.error("Failed to insert item:", error);
+        alert(`Failed to create item: ${error.message}`);
+        return null;
       }
+      if (data) {
+        setNotes(prev => [...prev, data]);
+        if (!isFolder) {
+          setActiveNoteId(data.id);
+          setViewMode("edit");
+        }
+      }
+      return data;
+    } catch (err) {
+      console.error("Exception creating item:", err);
+      alert(`Error creating item: ${err.message}`);
+      return null;
     }
-    return data;
   };
 
   const updateNote = async (id, content) => {
@@ -440,8 +455,9 @@ const FilesTab = ({ accent, activeProject, session }) => {
   const rgb = hexToRgb(accent);
 
   const fetchFiles = async () => {
-    const { data } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
+    const { data, error } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
     if (data) setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
+    else if (error) console.error("Fetch files error:", error);
   };
 
   useEffect(() => { fetchFiles(); }, [activeProject.id]);
@@ -453,16 +469,23 @@ const FilesTab = ({ accent, activeProject, session }) => {
     if (!file) return;
     setUploading(true);
     const path = `${session.user.id}/${activeProject.id}/${file.name}`;
-    await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
+    if (error) {
+      alert("Upload failed: " + error.message);
+    }
     await fetchFiles();
     setUploading(false);
   };
 
-  const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data.publicUrl;
+  const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data?.publicUrl;
 
   const deleteFile = async (name) => {
-    await supabase.storage.from("campaign_files").remove([`${session.user.id}/${activeProject.id}/${name}`]);
-    setFiles(prev => prev.filter(f => f.name !== name));
+    const { error } = await supabase.storage.from("campaign_files").remove([`${session.user.id}/${activeProject.id}/${name}`]);
+    if (!error) {
+      setFiles(prev => prev.filter(f => f.name !== name));
+    } else {
+      alert("Delete failed: " + error.message);
+    }
   };
 
   return (
@@ -483,17 +506,30 @@ const FilesTab = ({ accent, activeProject, session }) => {
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
-            {files.map(f => (
-              <div key={f.name} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", padding: "14px", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "8px", position: "relative" }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`}
-                onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
-                <div style={{ color: accent, display: "flex", justifyContent: "center" }}>{ICONS.note}</div>
-                <a href={getUrl(f.name)} target="_blank" rel="noreferrer" style={{ fontFamily: mono, fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.6)", textDecoration: "none", textAlign: "center" }}>{f.name}</a>
-                <button onClick={() => deleteFile(f.name)} style={{ position: "absolute", top: "6px", right: "6px", background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
-                  onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.color = "rgba(255,80,80,0.8)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.opacity = 0; }}>×</button>
-              </div>
-            ))}
+            {files.map(f => {
+              const url = getUrl(f.name);
+              const isImg = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.name);
+              const isAud = /\.(mp3|wav|ogg|flac|m4a)$/i.test(f.name);
+              return (
+                <div key={f.name} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", padding: "14px", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "8px", position: "relative", alignItems: "center" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
+                  {isImg ? (
+                    <div style={{ width: "100%", height: "80px", borderRadius: "4px", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.2)" }}>
+                      <img src={url} alt={f.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                    </div>
+                  ) : (
+                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {isAud ? ICONS.audio : ICONS.note}
+                    </div>
+                  )}
+                  <a href={url} target="_blank" rel="noreferrer" style={{ width: "100%", fontFamily: mono, fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.6)", textDecoration: "none", textAlign: "center" }}>{f.name}</a>
+                  <button onClick={() => deleteFile(f.name)} style={{ position: "absolute", top: "6px", right: "6px", background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.color = "rgba(255,80,80,0.8)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = 0; }}>×</button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
