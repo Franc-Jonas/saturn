@@ -13,49 +13,49 @@ const hexToRgb = (hex) => {
 };
 
 const ICONS = {
-  upload: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
-  note: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
-  folder: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
-  chevronRight: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
-  chevronDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  upload: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>,
+  note: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>,
+  folder: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
+  chevronRight: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>,
+  chevronDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>,
   // music waveform icon for audio files
-  audio: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>,
+  audio: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
   // pdf icon
-  pdf: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 13V10"/><path d="M14 13v6m0-6h2a1.5 1.5 0 0 1 0 3h-2"/><path d="M18 13v6"/></svg>,
+  pdf: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 13V10" /><path d="M14 13v6m0-6h2a1.5 1.5 0 0 1 0 3h-2" /><path d="M18 13v6" /></svg>,
 };
 
 const PROJECT_ICONS = [
-  { id: "sword", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 2l4 4-9 9-2 1 1-2 9-9zM2 18l3-3M11 5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { id: "skull", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 2.21 1.19 4.14 2.97 5.22L7 15h6l.03-1.78C14.81 12.14 16 10.21 16 8c0-3.314-2.686-6-6-6z" stroke="currentColor" strokeWidth="1.5"/><path d="M7 15v2h6v-2M8 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg> },
-  { id: "castle", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 18V8h3V6h2V4h1V2h2v2h1v2h2v2h3v10H3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M8 18v-4h4v4" stroke="currentColor" strokeWidth="1.5"/><path d="M3 8h14" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { id: "dragon", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3c-1 0-2 .5-2.5 1.5L6 7l-3 1 2 2-1 3 3-1 2 2 2-2 3 1-1-3 2-2-3-1-1.5-2.5C13 4 12 3 10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M10 9v5M8 16l2 2 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
-  { id: "map", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4.5l5.5-2 5 2 5.5-2v13l-5.5 2-5-2-5.5 2V4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7.5 2.5v13M12.5 4.5v13" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { id: "potion", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3h4M7 7l-3 7a3 3 0 006 0V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M13 7l3 7a3 3 0 01-3 3H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M7 7h6" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { id: "scroll", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="11" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2" stroke="currentColor" strokeWidth="1.5"/><path d="M9 8h5M9 11h5M9 14h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
-  { id: "shield", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 2.67 7.33 6 8 3.33-.67 6-4 6-8V5l-6-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { id: "flame", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-  { id: "eye", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { id: "crown", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 15h14M3 15l2-8 4 4 3-6 3 6 4-4 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { id: "dice", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="7" cy="7" r="1" fill="currentColor"/><circle cx="13" cy="7" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="13" r="1" fill="currentColor"/></svg> },
+  { id: "sword", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 2l4 4-9 9-2 1 1-2 9-9zM2 18l3-3M11 5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+  { id: "skull", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 2.21 1.19 4.14 2.97 5.22L7 15h6l.03-1.78C14.81 12.14 16 10.21 16 8c0-3.314-2.686-6-6-6z" stroke="currentColor" strokeWidth="1.5" /><path d="M7 15v2h6v-2M8 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /><circle cx="12" cy="8" r="1" fill="currentColor" /></svg> },
+  { id: "castle", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 18V8h3V6h2V4h1V2h2v2h1v2h2v2h3v10H3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M8 18v-4h4v4" stroke="currentColor" strokeWidth="1.5" /><path d="M3 8h14" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { id: "dragon", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3c-1 0-2 .5-2.5 1.5L6 7l-3 1 2 2-1 3 3-1 2 2 2-2 3 1-1-3 2-2-3-1-1.5-2.5C13 4 12 3 10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M10 9v5M8 16l2 2 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> },
+  { id: "map", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4.5l5.5-2 5 2 5.5-2v13l-5.5 2-5-2-5.5 2V4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7.5 2.5v13M12.5 4.5v13" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { id: "potion", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3h4M7 7l-3 7a3 3 0 006 0V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M13 7l3 7a3 3 0 01-3 3H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M7 7h6" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { id: "scroll", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="11" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2" stroke="currentColor" strokeWidth="1.5" /><path d="M9 8h5M9 11h5M9 14h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> },
+  { id: "shield", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 2.67 7.33 6 8 3.33-.67 6-4 6-8V5l-6-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7 10l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+  { id: "flame", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg> },
+  { id: "eye", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5" /><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5" /></svg> },
+  { id: "crown", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 15h14M3 15l2-8 4 4 3-6 3 6 4-4 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
+  { id: "dice", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" /><circle cx="7" cy="7" r="1" fill="currentColor" /><circle cx="13" cy="7" r="1" fill="currentColor" /><circle cx="10" cy="10" r="1" fill="currentColor" /><circle cx="7" cy="13" r="1" fill="currentColor" /><circle cx="13" cy="13" r="1" fill="currentColor" /></svg> },
 ];
 
 const TabIcon = ({ tab }) => {
   const icons = {
-    music: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12V4l7-1.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="4.5" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="11.5" cy="11" r="1.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
-    map: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3.5l4.5-1.5 5 1.5 4.5-1.5v10L10.5 13.5 5.5 12 1 13.5V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5.5 2v10M10.5 3.5V13.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
-    notes: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 6h6M5 8.5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
-    files: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h4l2 2h6v8H2V3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
-    settings: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.2 3.2l.85.85M11.95 11.95l.85.85M3.2 12.8l.85-.85M11.95 4.05l.85-.85" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+    music: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12V4l7-1.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="4.5" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5" /><circle cx="11.5" cy="11" r="1.5" stroke="currentColor" strokeWidth="1.5" /></svg>,
+    map: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3.5l4.5-1.5 5 1.5 4.5-1.5v10L10.5 13.5 5.5 12 1 13.5V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M5.5 2v10M10.5 3.5V13.5" stroke="currentColor" strokeWidth="1.5" /></svg>,
+    notes: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M5 6h6M5 8.5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+    files: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h4l2 2h6v8H2V3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
+    settings: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" /><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.2 3.2l.85.85M11.95 11.95l.85.85M3.2 12.8l.85-.85M11.95 4.05l.85-.85" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
   };
   return icons[tab] || null;
 };
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-    <path d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
-    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
+    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
+    <path d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05" />
+    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
   </svg>
 );
 
@@ -168,7 +168,7 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete })
         </div>
         {projects.length === 0 ? (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", opacity: 0.3 }}>
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke={accent} strokeWidth="1.5"/><path d="M24 18v12M18 24h12" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke={accent} strokeWidth="1.5" /><path d="M24 18v12M18 24h12" stroke={accent} strokeWidth="1.5" strokeLinecap="round" /></svg>
             <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no campaigns yet</p>
             <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0 }}>click + new to create one</p>
           </div>
@@ -222,7 +222,293 @@ const PlaceholderTab = ({ name, accent }) => (
   </div>
 );
 
-// ─── MAP TAB ───────────────────────────────────────────────────────────────────
+// ─── MUSIC TAB ─────────────────────────────────────────────────────────────────
+
+const AUDIO_RE = /\.(mp3|wav|ogg|flac|m4a|aac)$/i;
+
+const MusicTab = ({ accent, activeProject, session }) => {
+  const [songs, setSongs] = useState([]);
+  const [currentSong, setCurrentSong] = useState(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(80);
+  const [crossfade, setCrossfade] = useState(2);
+  const [queue, setQueue] = useState([]);
+  const [endMessage, setEndMessage] = useState(false);
+  const rgb = hexToRgb(accent);
+
+  const audioA = useRef(new Audio());
+  const audioB = useRef(new Audio());
+  const activeAudio = useRef("A"); // which one is currently the "main" player
+  const fadeInterval = useRef(null);
+  const progressInterval = useRef(null);
+
+  const getAudio = () => activeAudio.current === "A" ? audioA.current : audioB.current;
+  const getNextAudio = () => activeAudio.current === "A" ? audioB.current : audioA.current;
+  const swapAudio = () => { activeAudio.current = activeAudio.current === "A" ? "B" : "A"; };
+
+  const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data?.publicUrl;
+
+  // fetch audio files
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const { data } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
+      if (data) setSongs(data.filter(f => AUDIO_RE.test(f.name)));
+    };
+    fetchSongs();
+  }, [activeProject.id]);
+
+  // progress tracker
+  useEffect(() => {
+    clearInterval(progressInterval.current);
+    if (playing) {
+      progressInterval.current = setInterval(() => {
+        const a = getAudio();
+        if (a.duration) {
+          setProgress(a.currentTime);
+          setDuration(a.duration);
+        }
+      }, 250);
+    }
+    return () => clearInterval(progressInterval.current);
+  }, [playing, currentSong]);
+
+  // cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearInterval(fadeInterval.current);
+      clearInterval(progressInterval.current);
+      audioA.current.pause();
+      audioB.current.pause();
+    };
+  }, []);
+
+  const clearFade = () => { clearInterval(fadeInterval.current); fadeInterval.current = null; };
+
+  const targetVol = volume / 100;
+
+  const fadeOut = (audio, dur, onDone) => {
+    if (dur <= 0) { audio.pause(); audio.currentTime = 0; if (onDone) onDone(); return; }
+    const step = 50;
+    const decrement = (audio.volume / (dur * 1000)) * step;
+    const interval = setInterval(() => {
+      audio.volume = Math.max(0, audio.volume - decrement);
+      if (audio.volume <= 0.001) { clearInterval(interval); audio.pause(); audio.currentTime = 0; audio.volume = 0; if (onDone) onDone(); }
+    }, step);
+    return interval;
+  };
+
+  const fadeIn = (audio, dur, targetV) => {
+    if (dur <= 0) { audio.volume = targetV; return; }
+    audio.volume = 0;
+    const step = 50;
+    const increment = (targetV / (dur * 1000)) * step;
+    const interval = setInterval(() => {
+      audio.volume = Math.min(targetV, audio.volume + increment);
+      if (audio.volume >= targetV - 0.001) { clearInterval(interval); audio.volume = targetV; }
+    }, step);
+    return interval;
+  };
+
+  const playSong = (songName) => {
+    setEndMessage(false);
+    const url = getUrl(songName);
+    const cur = getAudio();
+
+    if (playing && currentSong) {
+      // crossfade: fade out current, fade in next on the other audio element
+      fadeOut(cur, crossfade);
+      const next = getNextAudio();
+      next.src = url;
+      next.volume = 0;
+      next.play().then(() => { fadeIn(next, crossfade, targetVol); });
+      swapAudio();
+    } else {
+      cur.src = url;
+      cur.volume = 0;
+      cur.play().then(() => { fadeIn(cur, crossfade, targetVol); });
+    }
+    setCurrentSong(songName);
+    setPlaying(true);
+    setProgress(0);
+  };
+
+  const stopSong = () => {
+    const cur = getAudio();
+    if (crossfade > 0) {
+      fadeOut(cur, crossfade, () => { setPlaying(false); setProgress(0); });
+    } else {
+      cur.pause(); cur.currentTime = 0; cur.volume = 0;
+      setPlaying(false); setProgress(0);
+    }
+  };
+
+  const skipSong = () => {
+    if (queue.length > 0) {
+      const [nextSong, ...rest] = queue;
+      setQueue(rest);
+      playSong(nextSong);
+    } else {
+      stopSong();
+      setEndMessage(true);
+      setCurrentSong(null);
+    }
+  };
+
+  // auto-advance when song ends
+  useEffect(() => {
+    const handleEnded = () => skipSong();
+    const a = audioA.current;
+    const b = audioB.current;
+    a.addEventListener("ended", handleEnded);
+    b.addEventListener("ended", handleEnded);
+    return () => { a.removeEventListener("ended", handleEnded); b.removeEventListener("ended", handleEnded); };
+  }, [queue, crossfade, volume]);
+
+  // volume changes apply live
+  useEffect(() => {
+    const cur = getAudio();
+    if (playing && cur.volume > 0) cur.volume = targetVol;
+  }, [volume]);
+
+  const seekTo = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const a = getAudio();
+    if (a.duration) { a.currentTime = pct * a.duration; setProgress(a.currentTime); }
+  };
+
+  const addToQueue = (songName) => {
+    setEndMessage(false);
+    setQueue(prev => [...prev, songName]);
+  };
+
+  const removeFromQueue = (index) => {
+    setQueue(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const fmt = (s) => { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
+
+  const stripExt = (name) => name.replace(/\.[^.]+$/, "");
+
+  return (
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+      {/* Song list */}
+      <div style={{ width: "260px", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
+        <div style={{ padding: "12px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>{songs.length} song{songs.length !== 1 ? "s" : ""}</p>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "6px" }}>
+          {songs.length === 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "12px", opacity: 0.2, color: accent }}>
+              {ICONS.audio}
+              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no audio files</p>
+              <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center" }}>upload audio in files tab</p>
+            </div>
+          ) : songs.map(s => (
+            <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", background: currentSong === s.name ? `rgba(${rgb},0.12)` : "transparent", color: currentSong === s.name ? accent : "rgba(255,255,255,0.55)", transition: "all 0.15s" }}
+              onMouseEnter={e => { if (currentSong !== s.name) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+              onMouseLeave={e => { if (currentSong !== s.name) e.currentTarget.style.background = "transparent"; }}
+              onClick={() => playSong(s.name)}>
+              <span style={{ opacity: 0.5, flexShrink: 0 }}>{ICONS.audio}</span>
+              <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s.name)}</span>
+              <button onClick={e => { e.stopPropagation(); addToQueue(s.name); }}
+                style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", flexShrink: 0, transition: "all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}>
+                +
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Player panel */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "24px", padding: "32px 24px" }}>
+          {/* Album art / icon */}
+          <div style={{ width: "120px", height: "120px", borderRadius: "12px", background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.15)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+          </div>
+
+          {/* Song name */}
+          <p style={{ fontFamily: mono, fontSize: "14px", color: currentSong ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)", letterSpacing: "0.08em", margin: 0, textAlign: "center", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {currentSong ? stripExt(currentSong) : endMessage ? "no more songs in queue" : "select a song"}
+          </p>
+
+          {/* Progress bar */}
+          <div style={{ width: "100%", maxWidth: "360px" }}>
+            <div onClick={seekTo} style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", cursor: "pointer", position: "relative", overflow: "hidden" }}>
+              <div style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%`, height: "100%", background: accent, borderRadius: "3px", transition: "width 0.2s linear" }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)" }}>{fmt(progress)}</span>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)" }}>{fmt(duration)}</span>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <button onClick={() => playing ? stopSong() : currentSong && playSong(currentSong)}
+              style={{ width: "48px", height: "48px", borderRadius: "50%", background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.3)`, color: accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.22)`}
+              onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.12)`}>
+              {playing ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+              )}
+            </button>
+            <button onClick={skipSong}
+              style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.3)`; e.currentTarget.style.color = accent; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4z" /><rect x="17" y="4" width="3" height="16" rx="1" /></svg>
+            </button>
+          </div>
+
+          {/* Volume */}
+          <div style={{ width: "100%", maxWidth: "280px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0, width: "48px" }}>vol</span>
+            <input type="range" min="0" max="100" value={volume} onChange={e => setVolume(Number(e.target.value))}
+              style={{ flex: 1, accentColor: accent, height: "4px", cursor: "pointer" }} />
+            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", width: "30px", textAlign: "right" }}>{volume}%</span>
+          </div>
+
+          {/* Crossfade */}
+          <div style={{ width: "100%", maxWidth: "280px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0, width: "48px" }}>fade</span>
+            <input type="range" min="0" max="12" step="0.5" value={crossfade} onChange={e => setCrossfade(Number(e.target.value))}
+              style={{ flex: 1, accentColor: accent, height: "4px", cursor: "pointer" }} />
+            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", width: "30px", textAlign: "right" }}>{crossfade}s</span>
+          </div>
+        </div>
+
+        {/* Queue */}
+        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px 16px", maxHeight: "180px", overflowY: "auto", background: "rgba(0,0,0,0.15)" }}>
+          <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", margin: "0 0 8px" }}>queue ({queue.length})</p>
+          {queue.length === 0 ? (
+            <p style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.15)", margin: 0 }}>empty — click + on a song to add</p>
+          ) : queue.map((s, i) => (
+            <div key={`${s}-${i}`} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "4px" }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", width: "16px", flexShrink: 0 }}>{i + 1}.</span>
+              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.45)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s)}</span>
+              <button onClick={() => removeFromQueue(i)}
+                style={{ background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "12px", lineHeight: 1, padding: "0 2px" }}
+                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,80,80,0.8)"}
+                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,80,80,0.3)"}>×</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 
 const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => {
   const [uploading, setUploading] = useState(false);
@@ -818,7 +1104,7 @@ export default function Saturn() {
               <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
                 onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
                 onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             )}
             <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
@@ -853,10 +1139,10 @@ export default function Saturn() {
               })}
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
-              {activeTab === "music"    && <PlaceholderTab name="music" accent={accent} />}
-              {activeTab === "map"      && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateMap={handleUpdateMap} onClearMap={handleClearMap} />}
-              {activeTab === "notes"    && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
-              {activeTab === "files"    && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
+              {activeTab === "music"    && <MusicTab accent={accent} activeProject={activeProject} session={session} />}
+              {activeTab === "map" && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateMap={handleUpdateMap} onClearMap={handleClearMap} />}
+              {activeTab === "notes" && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
+              {activeTab === "files" && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
               {activeTab === "settings" && <SettingsTab accent={accent} setAccentAndSave={setAccentAndSave} user={session.user} onSignOut={handleSignOut} />}
             </div>
           </>
@@ -867,7 +1153,7 @@ export default function Saturn() {
         )}
 
         <div style={{ padding: "10px 24px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.12)", textTransform: "uppercase" }}>v0.9.7</span>
+          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.12)", textTransform: "uppercase" }}>v0.13.9</span>
           <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", color: `rgba(${rgb},0.3)`, textTransform: "uppercase" }}>session active</span>
         </div>
       </div>
