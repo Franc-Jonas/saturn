@@ -855,40 +855,153 @@ const NotesTab = ({ accent, activeProject, session }) => {
 
 const FilesTab = ({ accent, activeProject, session }) => {
   const [files, setFiles] = useState([]);
+  const [currentPath, setCurrentPath] = useState("");
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [draggedItem, setDraggedItem] = useState(null);
+  const [itemMenuOpen, setItemMenuOpen] = useState(null);
   const rgb = hexToRgb(accent);
 
   const fetchFiles = async () => {
-    const { data } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
-    if (data) setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
+    const pathPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
+    const { data } = await supabase.storage.from("campaign_files").list(pathPrefix);
+    if (data) {
+      setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
+    }
   };
 
-  useEffect(() => { fetchFiles(); }, [activeProject.id]);
+  useEffect(() => { fetchFiles(); }, [activeProject.id, currentPath]);
 
-  const handleDrop = async (e) => {
-    e.preventDefault();
+  const handleDrop = async (e, targetFolder = null) => {
+    e.preventDefault(); e.stopPropagation();
     setDragging(false);
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    if (!droppedFiles.length) return;
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setUploading(true);
+      const droppedFiles = Array.from(e.dataTransfer.files);
+      
+      const destinationPath = targetFolder 
+        ? (currentPath ? `${currentPath}/${targetFolder}` : targetFolder)
+        : currentPath;
+        
+      const prefix = destinationPath 
+        ? `${session.user.id}/${activeProject.id}/${destinationPath}` 
+        : `${session.user.id}/${activeProject.id}`;
+
+      await Promise.all(droppedFiles.map(async (file) => {
+        const path = `${prefix}/${file.name}`;
+        const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
+        if (error) console.error(`Upload failed for ${file.name}:`, error.message);
+      }));
+
+      await fetchFiles();
+      setUploading(false);
+    } 
+    else if (draggedItem && targetFolder && targetFolder !== draggedItem.name) {
+      if (!draggedItem.id) return;
+      
+      setUploading(true);
+      const oldPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
+      const newPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${targetFolder}` : `${session.user.id}/${activeProject.id}/${targetFolder}`;
+      
+      const { error } = await supabase.storage.from("campaign_files").move(
+        `${oldPrefix}/${draggedItem.name}`,
+        `${newPrefix}/${draggedItem.name}`
+      );
+      
+      if (error) {
+        console.error("Move failed:", error.message);
+        alert("Move failed: " + error.message);
+      }
+      setDraggedItem(null);
+      await fetchFiles();
+      setUploading(false);
+    }
+  };
+
+  const createFolder = async () => {
+    const name = window.prompt("Folder name:");
+    if (!name || !name.trim()) return;
     setUploading(true);
-
-    await Promise.all(droppedFiles.map(async (file) => {
-      const path = `${session.user.id}/${activeProject.id}/${file.name}`;
-      const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
-      if (error) console.error(`Upload failed for ${file.name}:`, error.message);
-    }));
-
+    const folderPath = currentPath ? `${currentPath}/${name.trim()}` : name.trim();
+    const path = `${session.user.id}/${activeProject.id}/${folderPath}/.emptyFolderPlaceholder`;
+    await supabase.storage.from("campaign_files").upload(path, new Blob([""]), { upsert: true });
     await fetchFiles();
     setUploading(false);
   };
 
-  const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data?.publicUrl;
+  const getUrl = (name) => {
+    const p = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${name}` : `${session.user.id}/${activeProject.id}/${name}`;
+    return supabase.storage.from("campaign_files").getPublicUrl(p).data?.publicUrl;
+  };
 
-  const deleteFile = async (name) => {
-    const { error } = await supabase.storage.from("campaign_files").remove([`${session.user.id}/${activeProject.id}/${name}`]);
-    if (!error) setFiles(prev => prev.filter(f => f.name !== name));
-    else alert("Delete failed: " + error.message);
+  const deleteItem = async (item) => {
+    if (item.id) {
+      const p = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${item.name}` : `${session.user.id}/${activeProject.id}/${item.name}`;
+      const { error } = await supabase.storage.from("campaign_files").remove([p]);
+      if (!error) setFiles(prev => prev.filter(f => f.name !== item.name));
+      else alert("Delete failed: " + error.message);
+    } else {
+      const confirm = window.confirm(`Delete folder "${item.name}" and all its contents?`);
+      if (!confirm) return;
+      
+      setUploading(true);
+      const folderPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${item.name}` : `${session.user.id}/${activeProject.id}/${item.name}`;
+      
+      const deleteRecursively = async (prefix) => {
+        const { data } = await supabase.storage.from("campaign_files").list(prefix);
+        if (data && data.length > 0) {
+          for (const d of data) {
+            if (d.id) {
+              await supabase.storage.from("campaign_files").remove([`${prefix}/${d.name}`]);
+            } else {
+              await deleteRecursively(`${prefix}/${d.name}`);
+            }
+          }
+        }
+        await supabase.storage.from("campaign_files").remove([`${prefix}/.emptyFolderPlaceholder`]);
+      };
+      
+      await deleteRecursively(folderPrefix);
+      await fetchFiles();
+      setUploading(false);
+    }
+  };
+
+  const renameItem = async (item) => {
+    const newName = window.prompt("Rename to:", item.name);
+    if (!newName || !newName.trim() || newName === item.name) return;
+    
+    setUploading(true);
+    const oldPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
+    
+    if (item.id) {
+      const { error } = await supabase.storage.from("campaign_files").move(
+        `${oldPrefix}/${item.name}`,
+        `${oldPrefix}/${newName.trim()}`
+      );
+      if (error) alert("Rename failed: " + error.message);
+    } else {
+      const oldFolderPrefix = `${oldPrefix}/${item.name}`;
+      const newFolderPrefix = `${oldPrefix}/${newName.trim()}`;
+      
+      const moveRecursively = async (oldP, newP) => {
+        const { data } = await supabase.storage.from("campaign_files").list(oldP);
+        if (data) {
+          for (const d of data) {
+            if (d.id) {
+              await supabase.storage.from("campaign_files").move(`${oldP}/${d.name}`, `${newP}/${d.name}`);
+            } else {
+              await moveRecursively(`${oldP}/${d.name}`, `${newP}/${d.name}`);
+            }
+          }
+        }
+      };
+      
+      await moveRecursively(oldFolderPrefix, newFolderPrefix);
+    }
+    await fetchFiles();
+    setUploading(false);
   };
 
   const getFileIcon = (name) => {
@@ -898,46 +1011,127 @@ const FilesTab = ({ accent, activeProject, session }) => {
   };
 
   return (
-    <div onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={handleDrop}
+    <div onDragOver={e => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={e => handleDrop(e, null)}
       style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>{files.length} file{files.length !== 1 ? "s" : ""}</span>
-        <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", color: `rgba(${rgb},0.4)` }}>{uploading ? "uploading..." : dragging ? "drop to upload" : "drag files here"}</span>
+      <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {currentPath ? (
+            <>
+              <button onClick={() => {
+                const parts = currentPath.split("/");
+                parts.pop();
+                setCurrentPath(parts.join("/"));
+              }} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "4px 8px", fontFamily: mono, fontSize: "10px", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.15s" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>
+                ⬅ back
+              </button>
+              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>
+                / {currentPath}
+              </span>
+            </>
+          ) : (
+            <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>
+              {files.length} item{files.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", color: `rgba(${rgb},0.4)` }}>
+            {uploading ? "uploading/moving..." : dragging ? "drop to upload" : "drag files here"}
+          </span>
+          <button onClick={createFolder} style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "6px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "6px 12px", cursor: "pointer", transition: "all 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
+            onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
+            + folder
+          </button>
+        </div>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
         {files.length === 0 ? (
           <div style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", opacity: 0.2, color: accent }}>
             {ICONS.upload}
-            <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no files yet</p>
+            <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no items yet</p>
           </div>
         ) : (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "12px" }}>
             {files.map(f => {
-              const url = getUrl(f.name);
-              const isImg = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.name);
+              const isFolder = !f.id;
+              const url = isFolder ? null : getUrl(f.name);
+              const isImg = isFolder ? false : /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.name);
+              
               return (
-                <div key={f.name} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", padding: "14px", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "8px", position: "relative", alignItems: "center" }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`}
+                <div key={f.name} 
+                  draggable={!isFolder}
+                  onDragStart={e => { 
+                    if (!isFolder) setDraggedItem(f);
+                  }}
+                  onDragEnd={() => setDraggedItem(null)}
+                  onDragOver={e => { 
+                    if (isFolder) e.preventDefault(); 
+                  }}
+                  onDrop={e => {
+                    if (isFolder) handleDrop(e, f.name);
+                  }}
+                  onClick={() => {
+                    if (isFolder) {
+                      setCurrentPath(currentPath ? `${currentPath}/${f.name}` : f.name);
+                    }
+                  }}
+                  style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", padding: "14px", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "8px", position: "relative", alignItems: "center", cursor: isFolder ? "pointer" : "default", transition: "border-color 0.15s" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`}
                   onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
-                  {isImg ? (
+                  
+                  {isFolder ? (
+                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.8 }}>
+                      {ICONS.folder}
+                    </div>
+                  ) : isImg ? (
                     <div style={{ width: "100%", height: "80px", borderRadius: "4px", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.2)" }}>
-                      <img src={url} alt={f.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+                      <img src={url} alt={f.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} draggable={false} />
                     </div>
                   ) : (
                     <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {getFileIcon(f.name)}
                     </div>
                   )}
-                  <a href={url} target="_blank" rel="noreferrer" style={{ width: "100%", fontFamily: mono, fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.6)", textDecoration: "none", textAlign: "center" }}>{f.name}</a>
-                  <button onClick={() => deleteFile(f.name)} style={{ position: "absolute", top: "6px", right: "6px", background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.color = "rgba(255,80,80,0.8)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = 0; }}>×</button>
+                  
+                  {isFolder ? (
+                    <span style={{ width: "100%", fontFamily: mono, fontSize: "11px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.8)", textAlign: "center" }}>{f.name}</span>
+                  ) : (
+                    <a href={url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ width: "100%", fontFamily: mono, fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.6)", textDecoration: "none", textAlign: "center" }}>{f.name}</a>
+                  )}
+                  
+                  <div style={{ position: "absolute", top: "6px", right: "6px" }} onClick={e => e.stopPropagation()}>
+                    <button onClick={e => { e.stopPropagation(); setItemMenuOpen(itemMenuOpen === f.name ? null : f.name); }} 
+                      style={{ background: "rgba(0,0,0,0.5)", border: "none", borderRadius: "4px", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "2px 6px", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
+                      onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,255,255,0.8)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
+                      className="item-menu-btn">···</button>
+                    
+                    {itemMenuOpen === f.name && (
+                      <>
+                        <div onClick={e => { e.stopPropagation(); setItemMenuOpen(null); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
+                        <div style={{ position: "absolute", right: 0, top: "24px", zIndex: 10, background: "#1c1c1c", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "4px", minWidth: "100px", display: "flex", flexDirection: "column", gap: "2px", boxShadow: "0 4px 12px rgba(0,0,0,0.5)" }}>
+                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); renameItem(f); }}
+                            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+                            onMouseLeave={e => e.currentTarget.style.background = "none"}>rename</button>
+                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); deleteItem(f); }}
+                            style={{ background: "none", border: "none", color: "rgba(255,80,80,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.1)"}
+                            onMouseLeave={e => e.currentTarget.style.background = "none"}>delete</button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               );
             })}
           </div>
         )}
       </div>
+      <style>{`.item-menu-btn { opacity: 0; } div:hover > div > .item-menu-btn { opacity: 1; }`}</style>
     </div>
   );
 };
