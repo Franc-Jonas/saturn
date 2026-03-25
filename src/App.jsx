@@ -633,6 +633,18 @@ const FilesTab = ({ accent, activeProject, session }) => {
 const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
   const presets = ["#fb4f2b", "#e63946", "#f4a261", "#2ec4b6", "#8338ec", "#06d6a0", "#118ab2"];
   const rgb = hexToRgb(accent);
+  const [feedbackMsg, setFeedbackMsg] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState(null); // null | "sending" | "sent" | "error"
+
+  const handleSendFeedback = async () => {
+    if (!feedbackMsg.trim()) return;
+    setFeedbackStatus("sending");
+    const { error } = await supabase.from("feedback").insert({ user_id: user.id, email: user.email, message: feedbackMsg.trim() });
+    if (error) { setFeedbackStatus("error"); console.error("Feedback error:", error); }
+    else { setFeedbackStatus("sent"); setFeedbackMsg(""); }
+    setTimeout(() => setFeedbackStatus(null), 2500);
+  };
+
   return (
     <div style={{ padding: "28px 24px", display: "flex", flexDirection: "column", gap: "32px", overflowY: "auto", height: "100%" }}>
       <div>
@@ -654,6 +666,24 @@ const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
         <div style={{ padding: "16px 20px", borderRadius: "8px", border: `1px solid rgba(${rgb},0.25)`, background: `rgba(${rgb},0.06)`, display: "flex", alignItems: "center", gap: "12px" }}>
           <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: accent }} />
           <span style={{ fontFamily: mono, fontSize: "13px", color: accent }}>saturn — dm toolkit</span>
+        </div>
+      </div>
+      {/* Feedback section */}
+      <div style={{ paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 12px" }}>send bugs or ideas for features</p>
+        <textarea value={feedbackMsg} onChange={e => setFeedbackMsg(e.target.value)} placeholder="describe a bug or suggest a feature..."
+          style={{ width: "100%", minHeight: "80px", background: "rgba(255,255,255,0.04)", border: `1px solid rgba(${rgb},0.2)`, borderRadius: "6px", color: "rgba(255,255,255,0.75)", fontFamily: mono, fontSize: "12px", padding: "12px 14px", outline: "none", resize: "vertical", lineHeight: 1.6, transition: "border-color 0.2s" }}
+          onFocus={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.5)`}
+          onBlur={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.2)`} />
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "10px" }}>
+          <button onClick={handleSendFeedback} disabled={!feedbackMsg.trim() || feedbackStatus === "sending"}
+            style={{ background: feedbackMsg.trim() ? `rgba(${rgb},0.12)` : "transparent", border: `1px solid ${feedbackMsg.trim() ? `rgba(${rgb},0.35)` : "rgba(255,255,255,0.08)"}`, borderRadius: "6px", color: feedbackMsg.trim() ? accent : "rgba(255,255,255,0.2)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "7px 14px", cursor: feedbackMsg.trim() ? "pointer" : "not-allowed", transition: "all 0.15s" }}
+            onMouseEnter={e => { if (feedbackMsg.trim()) e.currentTarget.style.background = `rgba(${rgb},0.2)`; }}
+            onMouseLeave={e => { if (feedbackMsg.trim()) e.currentTarget.style.background = `rgba(${rgb},0.12)`; }}>
+            {feedbackStatus === "sending" ? "sending..." : "send"}
+          </button>
+          {feedbackStatus === "sent" && <span style={{ fontFamily: mono, fontSize: "10px", color: "#06d6a0", letterSpacing: "0.1em" }}>sent — thank you!</span>}
+          {feedbackStatus === "error" && <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,80,80,0.8)", letterSpacing: "0.1em" }}>failed to send</span>}
         </div>
       </div>
       <div style={{ marginTop: "auto", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
