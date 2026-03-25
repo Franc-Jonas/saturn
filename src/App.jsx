@@ -845,12 +845,16 @@ const FilesTab = ({ accent, activeProject, session }) => {
   const handleDrop = async (e) => {
     e.preventDefault();
     setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (!droppedFiles.length) return;
     setUploading(true);
-    const path = `${session.user.id}/${activeProject.id}/${file.name}`;
-    const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
-    if (error) alert("Upload failed: " + error.message);
+    
+    await Promise.all(droppedFiles.map(async (file) => {
+      const path = `${session.user.id}/${activeProject.id}/${file.name}`;
+      const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
+      if (error) console.error(`Upload failed for ${file.name}:`, error.message);
+    }));
+    
     await fetchFiles();
     setUploading(false);
   };
