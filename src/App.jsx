@@ -290,12 +290,12 @@ const MusicTab = ({ accent, activeProject, session }) => {
   const targetVol = volume / 100;
 
   const fadeOut = (audio, dur, onDone) => {
-    if (dur <= 0) { audio.pause(); audio.currentTime = 0; if (onDone) onDone(); return; }
+    if (dur <= 0) { audio.pause(); if (onDone) onDone(); return; }
     const step = 50;
     const decrement = (audio.volume / (dur * 1000)) * step;
     const interval = setInterval(() => {
       audio.volume = Math.max(0, audio.volume - decrement);
-      if (audio.volume <= 0.001) { clearInterval(interval); audio.pause(); audio.currentTime = 0; audio.volume = 0; if (onDone) onDone(); }
+      if (audio.volume <= 0.001) { clearInterval(interval); audio.pause(); audio.volume = 0; if (onDone) onDone(); }
     }, step);
     return interval;
   };
@@ -318,7 +318,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
     const url = getUrl(songName);
     const cur = getAudio();
 
-    if (playing && currentSong) {
+    if (playing && currentSong && currentSong !== songName) {
       // crossfade: fade out current, fade in next on the other audio element
       fadeOut(cur, crossfade);
       const next = getNextAudio();
@@ -326,24 +326,35 @@ const MusicTab = ({ accent, activeProject, session }) => {
       next.volume = 0;
       next.play().then(() => { fadeIn(next, crossfade, targetVol); });
       swapAudio();
+      setProgress(0);
+    } else if (currentSong === songName) {
+      if (!playing) {
+        // resume
+        cur.volume = 0;
+        cur.play().then(() => { fadeIn(cur, crossfade, targetVol); });
+      } else {
+        // restart
+        cur.currentTime = 0;
+        setProgress(0);
+      }
     } else {
       cur.src = url;
       cur.volume = 0;
       cur.play().then(() => { fadeIn(cur, crossfade, targetVol); });
+      setProgress(0);
     }
     setCurrentSong(songName);
     setPlaying(true);
-    setProgress(0);
   };
 
   const stopSong = () => {
     const cur = getAudio();
     if (crossfade > 0) {
       setStopping(true);
-      fadeOut(cur, crossfade, () => { setPlaying(false); setProgress(0); setStopping(false); });
+      fadeOut(cur, crossfade, () => { setPlaying(false); setStopping(false); });
     } else {
-      cur.pause(); cur.currentTime = 0; cur.volume = 0;
-      setPlaying(false); setProgress(0); setStopping(false);
+      cur.pause(); cur.volume = 0;
+      setPlaying(false); setStopping(false);
     }
   };
 
@@ -356,6 +367,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
       stopSong();
       setEndMessage(true);
       setCurrentSong(null);
+      setProgress(0);
     }
   };
 
