@@ -367,6 +367,7 @@ const NotesTab = ({ accent, activeProject, session }) => {
   const [expanded, setExpanded] = useState(new Set());
   const [viewMode, setViewMode] = useState("edit");
   const [draggedId, setDraggedId] = useState(null);
+  const [itemMenuOpen, setItemMenuOpen] = useState(null);
   const rgb = hexToRgb(accent);
 
   const fetchNotes = async () => {
@@ -395,6 +396,13 @@ const NotesTab = ({ accent, activeProject, session }) => {
     await supabase.from("notes").delete().eq("id", id);
     setNotes(prev => prev.filter(n => n.id !== id));
     if (activeNoteId === id) setActiveNoteId(null);
+  };
+
+  const renameNote = async (id, newName) => {
+    if (!newName || !newName.trim()) return;
+    const trimmed = newName.trim();
+    setNotes(prev => prev.map(n => n.id === id ? { ...n, name: trimmed } : n));
+    await supabase.from("notes").update({ name: trimmed }).eq("id", id);
   };
 
   const toggleFolder = (id) => {
@@ -441,20 +449,44 @@ const NotesTab = ({ accent, activeProject, session }) => {
 
   const renderTree = (parentId = null, depth = 0) =>
     notes.filter(n => n.parent_id === parentId).map(n => (
-      <div key={n.id}>
+      <div key={n.id} style={{ position: "relative" }}>
         <div draggable onDragStart={e => handleDragStart(e, n.id)}
           onDragOver={e => { if (n.is_folder && draggedId !== n.id) e.preventDefault(); }}
           onDrop={e => { if (n.is_folder) handleDrop(e, n.id); }}
-          style={{ display: "flex", alignItems: "center", gap: "6px", padding: `5px 10px 5px ${12 + depth * 14}px`, cursor: "pointer", background: activeNoteId === n.id ? `rgba(${rgb},0.12)` : "transparent", color: activeNoteId === n.id ? accent : "rgba(255,255,255,0.55)", borderRadius: "4px", transition: "all 0.15s", userSelect: "none" }}
+          style={{ display: "flex", alignItems: "center", gap: "6px", padding: `5px 6px 5px ${12 + depth * 14}px`, cursor: "pointer", background: activeNoteId === n.id ? `rgba(${rgb},0.12)` : "transparent", color: activeNoteId === n.id ? accent : "rgba(255,255,255,0.55)", borderRadius: "4px", transition: "all 0.15s", userSelect: "none" }}
           onMouseEnter={e => { if (activeNoteId !== n.id) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
           onMouseLeave={e => { if (activeNoteId !== n.id) e.currentTarget.style.background = "transparent"; }}
           onClick={() => { if (n.is_folder) toggleFolder(n.id); else { setActiveNoteId(n.id); setViewMode("read"); } }}>
           <span style={{ opacity: 0.5, flexShrink: 0 }}>{n.is_folder ? (expanded.has(n.id) ? ICONS.chevronDown : ICONS.chevronRight) : <span style={{ width: 10, display: "inline-block" }} />}</span>
           <span style={{ opacity: 0.6, flexShrink: 0 }}>{n.is_folder ? ICONS.folder : ICONS.note}</span>
           <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.name}</span>
-          <button onClick={e => { e.stopPropagation(); deleteNote(n.id); }} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.4)", cursor: "pointer", padding: "0 2px", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
-            onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.color = "rgba(255,80,80,0.8)"; }}
-            onMouseLeave={e => { e.currentTarget.style.opacity = 0; }}>×</button>
+          {/* three-dots menu trigger */}
+          <div style={{ position: "relative", flexShrink: 0 }} onClick={e => { e.stopPropagation(); setItemMenuOpen(itemMenuOpen === n.id ? null : n.id); }}>
+            <button style={{ background: "none", border: "none", color: "rgba(255,255,255,0.2)", cursor: "pointer", padding: "2px 4px", fontSize: "13px", lineHeight: 1, borderRadius: "3px", transition: "color 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"}>
+              ···
+            </button>
+            {itemMenuOpen === n.id && (
+              <>
+                <div onClick={e => { e.stopPropagation(); setItemMenuOpen(null); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
+                <div style={{ position: "absolute", right: 0, top: "22px", zIndex: 20, background: "#1c1c1c", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "7px", padding: "5px", minWidth: "120px", display: "flex", flexDirection: "column", gap: "2px", boxShadow: "0 4px 16px rgba(0,0,0,0.5)" }}>
+                  <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); const newName = window.prompt("Rename:", n.name); renameNote(n.id, newName); }}
+                    style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "7px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                    rename
+                  </button>
+                  <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); deleteNote(n.id); }}
+                    style={{ background: "none", border: "none", color: "rgba(255,80,80,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "7px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.08)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}>
+                    delete
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         {n.is_folder && expanded.has(n.id) && renderTree(n.id, depth + 1)}
       </div>
