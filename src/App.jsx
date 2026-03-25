@@ -368,6 +368,7 @@ const NotesTab = ({ accent, activeProject, session }) => {
   const [viewMode, setViewMode] = useState("edit");
   const [draggedId, setDraggedId] = useState(null);
   const [itemMenuOpen, setItemMenuOpen] = useState(null);
+  const nameDebounceRef = useRef(null);
   const rgb = hexToRgb(accent);
 
   const fetchNotes = async () => {
@@ -510,7 +511,14 @@ const NotesTab = ({ accent, activeProject, session }) => {
         {activeNote ? (
           <>
             <div style={{ padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", gap: "12px" }}>
-              <input value={activeNote.name} onChange={e => { setNotes(prev => prev.map(n => n.id === activeNote.id ? { ...n, name: e.target.value } : n)); supabase.from("notes").update({ name: e.target.value }).eq("id", activeNote.id); }}
+              <input value={activeNote.name} onChange={e => {
+                const val = e.target.value;
+                setNotes(prev => prev.map(n => n.id === activeNote.id ? { ...n, name: val } : n));
+                clearTimeout(nameDebounceRef.current);
+                nameDebounceRef.current = setTimeout(() => {
+                  supabase.from("notes").update({ name: val }).eq("id", activeNote.id);
+                }, 500);
+              }}
                 style={{ background: "none", border: "none", outline: "none", color: "#fff", fontFamily: mono, fontSize: "13px", fontWeight: "500", flex: 1, letterSpacing: "0.05em" }} />
               <button onClick={() => setViewMode(viewMode === "edit" ? "read" : "edit")}
                 style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "4px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "4px 8px", cursor: "pointer", transition: "all 0.15s" }}
