@@ -230,6 +230,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
   const [songs, setSongs] = useState([]);
   const [currentSong, setCurrentSong] = useState(null);
   const [playing, setPlaying] = useState(false);
+  const [stopping, setStopping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(80);
@@ -313,6 +314,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
 
   const playSong = (songName) => {
     setEndMessage(false);
+    setStopping(false);
     const url = getUrl(songName);
     const cur = getAudio();
 
@@ -337,10 +339,11 @@ const MusicTab = ({ accent, activeProject, session }) => {
   const stopSong = () => {
     const cur = getAudio();
     if (crossfade > 0) {
-      fadeOut(cur, crossfade, () => { setPlaying(false); setProgress(0); });
+      setStopping(true);
+      fadeOut(cur, crossfade, () => { setPlaying(false); setProgress(0); setStopping(false); });
     } else {
       cur.pause(); cur.currentTime = 0; cur.volume = 0;
-      setPlaying(false); setProgress(0);
+      setPlaying(false); setProgress(0); setStopping(false);
     }
   };
 
@@ -450,16 +453,25 @@ const MusicTab = ({ accent, activeProject, session }) => {
 
           {/* Controls */}
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <button onClick={() => playing ? stopSong() : currentSong && playSong(currentSong)}
-              style={{ width: "48px", height: "48px", borderRadius: "50%", background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.3)`, color: accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
-              onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.22)`}
-              onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.12)`}>
-              {playing ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-              )}
-            </button>
+            <div style={{ position: "relative", width: "56px", height: "56px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none", transform: "rotate(-90deg)" }}>
+                <circle cx="28" cy="28" r="27" fill="none" stroke={playing && !stopping ? `rgba(${rgb},0.2)` : "transparent"} strokeWidth="2" style={{ transition: "stroke 0.3s" }} />
+                <circle cx="28" cy="28" r="27" fill="none" stroke={accent} strokeWidth="2"
+                  strokeDasharray="169.65"
+                  strokeDashoffset={stopping ? 169.65 : (playing ? 0 : 169.65)}
+                  style={{ transition: stopping ? `stroke-dashoffset ${crossfade}s linear` : (playing ? "stroke-dashoffset 0.3s ease" : "none"), opacity: playing || stopping ? 1 : 0 }} />
+              </svg>
+              <button onClick={() => playing && !stopping ? stopSong() : currentSong && playSong(currentSong)}
+                style={{ width: "48px", height: "48px", borderRadius: "50%", background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.3)`, color: accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.22)`}
+                onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.12)`}>
+                {playing && !stopping ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                )}
+              </button>
+            </div>
             <button onClick={skipSong}
               style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.3)`; e.currentTarget.style.color = accent; }}
@@ -848,13 +860,13 @@ const FilesTab = ({ accent, activeProject, session }) => {
     const droppedFiles = Array.from(e.dataTransfer.files);
     if (!droppedFiles.length) return;
     setUploading(true);
-    
+
     await Promise.all(droppedFiles.map(async (file) => {
       const path = `${session.user.id}/${activeProject.id}/${file.name}`;
       const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
       if (error) console.error(`Upload failed for ${file.name}:`, error.message);
     }));
-    
+
     await fetchFiles();
     setUploading(false);
   };
@@ -1143,7 +1155,9 @@ export default function Saturn() {
               })}
             </div>
             <div style={{ flex: 1, overflow: "hidden" }}>
-              {activeTab === "music"    && <MusicTab accent={accent} activeProject={activeProject} session={session} />}
+              <div style={{ display: activeTab === "music" ? "block" : "none", height: "100%" }}>
+                <MusicTab accent={accent} activeProject={activeProject} session={session} />
+              </div>
               {activeTab === "map" && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateMap={handleUpdateMap} onClearMap={handleClearMap} />}
               {activeTab === "notes" && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
               {activeTab === "files" && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
