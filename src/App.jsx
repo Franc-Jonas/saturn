@@ -17,11 +17,7 @@ const listAllStorageFiles = async (bucket, path) => {
   let offset = 0;
   const limit = 100;
   while (true) {
-    const { data, error } = await supabase.storage.from(bucket).list(path, {
-      limit,
-      offset,
-      sortBy: { column: 'name', order: 'asc' }
-    });
+    const { data, error } = await supabase.storage.from(bucket).list(path, { limit, offset, sortBy: { column: "name", order: "asc" } });
     if (error || !data || data.length === 0) break;
     allData.push(...data);
     if (data.length < limit) break;
@@ -31,49 +27,47 @@ const listAllStorageFiles = async (bucket, path) => {
 };
 
 const ICONS = {
-  upload: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>,
-  note: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>,
-  folder: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
-  chevronRight: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>,
-  chevronDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>,
-  // music waveform icon for audio files
-  audio: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>,
-  // pdf icon
-  pdf: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 13V10" /><path d="M14 13v6m0-6h2a1.5 1.5 0 0 1 0 3h-2" /><path d="M18 13v6" /></svg>,
+  upload: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>,
+  note: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+  folder: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
+  chevronRight: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
+  chevronDown: <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>,
+  audio: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>,
+  pdf: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h1.5a1.5 1.5 0 0 1 0 3H9v-3zM9 13V10"/><path d="M14 13v6m0-6h2a1.5 1.5 0 0 1 0 3h-2"/><path d="M18 13v6"/></svg>,
 };
 
 const PROJECT_ICONS = [
-  { id: "sword", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 2l4 4-9 9-2 1 1-2 9-9zM2 18l3-3M11 5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
-  { id: "skull", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 2.21 1.19 4.14 2.97 5.22L7 15h6l.03-1.78C14.81 12.14 16 10.21 16 8c0-3.314-2.686-6-6-6z" stroke="currentColor" strokeWidth="1.5" /><path d="M7 15v2h6v-2M8 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><circle cx="8" cy="8" r="1" fill="currentColor" /><circle cx="12" cy="8" r="1" fill="currentColor" /></svg> },
-  { id: "castle", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 18V8h3V6h2V4h1V2h2v2h1v2h2v2h3v10H3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M8 18v-4h4v4" stroke="currentColor" strokeWidth="1.5" /><path d="M3 8h14" stroke="currentColor" strokeWidth="1.5" /></svg> },
-  { id: "dragon", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3c-1 0-2 .5-2.5 1.5L6 7l-3 1 2 2-1 3 3-1 2 2 2-2 3 1-1-3 2-2-3-1-1.5-2.5C13 4 12 3 10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M10 9v5M8 16l2 2 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> },
-  { id: "map", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4.5l5.5-2 5 2 5.5-2v13l-5.5 2-5-2-5.5 2V4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7.5 2.5v13M12.5 4.5v13" stroke="currentColor" strokeWidth="1.5" /></svg> },
-  { id: "potion", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3h4M7 7l-3 7a3 3 0 006 0V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M13 7l3 7a3 3 0 01-3 3H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /><path d="M7 7h6" stroke="currentColor" strokeWidth="1.5" /></svg> },
-  { id: "scroll", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="11" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2" stroke="currentColor" strokeWidth="1.5" /><path d="M9 8h5M9 11h5M9 14h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg> },
-  { id: "shield", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 2.67 7.33 6 8 3.33-.67 6-4 6-8V5l-6-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M7 10l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
-  { id: "flame", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg> },
-  { id: "eye", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5" /><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5" /></svg> },
-  { id: "crown", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 15h14M3 15l2-8 4 4 3-6 3 6 4-4 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg> },
-  { id: "dice", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" /><circle cx="7" cy="7" r="1" fill="currentColor" /><circle cx="13" cy="7" r="1" fill="currentColor" /><circle cx="10" cy="10" r="1" fill="currentColor" /><circle cx="7" cy="13" r="1" fill="currentColor" /><circle cx="13" cy="13" r="1" fill="currentColor" /></svg> },
+  { id: "sword", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14 2l4 4-9 9-2 1 1-2 9-9zM2 18l3-3M11 5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  { id: "skull", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 2.21 1.19 4.14 2.97 5.22L7 15h6l.03-1.78C14.81 12.14 16 10.21 16 8c0-3.314-2.686-6-6-6z" stroke="currentColor" strokeWidth="1.5"/><path d="M7 15v2h6v-2M8 18h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="8" cy="8" r="1" fill="currentColor"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg> },
+  { id: "castle", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 18V8h3V6h2V4h1V2h2v2h1v2h2v2h3v10H3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M8 18v-4h4v4" stroke="currentColor" strokeWidth="1.5"/><path d="M3 8h14" stroke="currentColor" strokeWidth="1.5"/></svg> },
+  { id: "dragon", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3c-1 0-2 .5-2.5 1.5L6 7l-3 1 2 2-1 3 3-1 2 2 2-2 3 1-1-3 2-2-3-1-1.5-2.5C13 4 12 3 10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M10 9v5M8 16l2 2 2-2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+  { id: "map", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 4.5l5.5-2 5 2 5.5-2v13l-5.5 2-5-2-5.5 2V4.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7.5 2.5v13M12.5 4.5v13" stroke="currentColor" strokeWidth="1.5"/></svg> },
+  { id: "potion", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M8 3h4M7 7l-3 7a3 3 0 006 0V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M13 7l3 7a3 3 0 01-3 3H7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M7 7h6" stroke="currentColor" strokeWidth="1.5"/></svg> },
+  { id: "scroll", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="3" width="11" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 5a2 2 0 00-2 2v6a2 2 0 002 2" stroke="currentColor" strokeWidth="1.5"/><path d="M9 8h5M9 11h5M9 14h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
+  { id: "shield", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L4 5v5c0 4 2.67 7.33 6 8 3.33-.67 6-4 6-8V5l-6-3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M7 10l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  { id: "flame", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2c0 4-4 5-4 9a4 4 0 008 0c0-4-4-5-4-9z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
+  { id: "eye", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="currentColor" strokeWidth="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.5"/></svg> },
+  { id: "crown", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 15h14M3 15l2-8 4 4 3-6 3 6 4-4 2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  { id: "dice", svg: <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="7" cy="7" r="1" fill="currentColor"/><circle cx="13" cy="7" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="13" cy="13" r="1" fill="currentColor"/></svg> },
 ];
 
 const TabIcon = ({ tab }) => {
   const icons = {
-    music: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12V4l7-1.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="4.5" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5" /><circle cx="11.5" cy="11" r="1.5" stroke="currentColor" strokeWidth="1.5" /></svg>,
-    map: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3.5l4.5-1.5 5 1.5 4.5-1.5v10L10.5 13.5 5.5 12 1 13.5V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /><path d="M5.5 2v10M10.5 3.5V13.5" stroke="currentColor" strokeWidth="1.5" /></svg>,
-    notes: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5" /><path d="M5 6h6M5 8.5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
-    files: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h4l2 2h6v8H2V3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>,
-    settings: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" /><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.2 3.2l.85.85M11.95 11.95l.85.85M3.2 12.8l.85-.85M11.95 4.05l.85-.85" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>,
+    music: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12V4l7-1.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><circle cx="4.5" cy="12" r="1.5" stroke="currentColor" strokeWidth="1.5"/><circle cx="11.5" cy="11" r="1.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
+    map: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3.5l4.5-1.5 5 1.5 4.5-1.5v10L10.5 13.5 5.5 12 1 13.5V3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/><path d="M5.5 2v10M10.5 3.5V13.5" stroke="currentColor" strokeWidth="1.5"/></svg>,
+    notes: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M5 6h6M5 8.5h6M5 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
+    files: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h4l2 2h6v8H2V3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>,
+    settings: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.2 3.2l.85.85M11.95 11.95l.85.85M3.2 12.8l.85-.85M11.95 4.05l.85-.85" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>,
   };
   return icons[tab] || null;
 };
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4" />
-    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853" />
-    <path d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05" />
-    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335" />
+    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+    <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+    <path d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/>
+    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
   </svg>
 );
 
@@ -166,6 +160,57 @@ const RenameModal = ({ accent, project, onClose, onSave }) => {
   );
 };
 
+// ─── NOTE PICKER MODAL ────────────────────────────────────────────────────────
+
+const NotePickerModal = ({ accent, notes, onClose, onSelect }) => {
+  const rgb = hexToRgb(accent);
+  const [expanded, setExpanded] = useState(new Set());
+
+  const toggleFolder = (id) => {
+    setExpanded(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+  };
+
+  const renderTree = (parentId = null, depth = 0) =>
+    notes.filter(n => n.parent_id === parentId).map(n => (
+      <div key={n.id}>
+        <div onClick={() => n.is_folder ? toggleFolder(n.id) : onSelect(n)}
+          style={{ display: "flex", alignItems: "center", gap: "8px", padding: `8px 12px 8px ${12 + depth * 16}px`, cursor: n.is_folder ? "default" : "pointer", borderRadius: "6px", color: n.is_folder ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.75)", transition: "all 0.15s", userSelect: "none" }}
+          onMouseEnter={e => { if (!n.is_folder) { e.currentTarget.style.background = `rgba(${rgb},0.1)`; e.currentTarget.style.color = accent; } }}
+          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = n.is_folder ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.75)"; }}>
+          <span style={{ opacity: 0.5, flexShrink: 0, width: 12 }}>
+            {n.is_folder ? (expanded.has(n.id) ? ICONS.chevronDown : ICONS.chevronRight) : null}
+          </span>
+          <span style={{ opacity: 0.6, flexShrink: 0 }}>{n.is_folder ? ICONS.folder : ICONS.note}</span>
+          <span style={{ fontFamily: mono, fontSize: "12px" }}>{n.name}</span>
+        </div>
+        {n.is_folder && expanded.has(n.id) && renderTree(n.id, depth + 1)}
+      </div>
+    ));
+
+  const onlyNotes = notes.filter(n => !n.is_folder);
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ background: "#141414", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", maxHeight: "70vh" }}>
+        <div style={{ padding: "20px 20px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: 0 }}>select note</p>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: "18px", lineHeight: 1, padding: "2px" }}
+            onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
+            onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>×</button>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px" }}>
+          {onlyNotes.length === 0 ? (
+            <div style={{ padding: "32px", textAlign: "center", opacity: 0.3 }}>
+              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no notes yet</p>
+              <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: "8px 0 0" }}>create notes in the notes tab first</p>
+            </div>
+          ) : renderTree()}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── PROJECT LIST ──────────────────────────────────────────────────────────────
 
 const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete }) => {
@@ -186,7 +231,7 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete })
         </div>
         {projects.length === 0 ? (
           <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px", opacity: 0.3 }}>
-            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke={accent} strokeWidth="1.5" /><path d="M24 18v12M18 24h12" stroke={accent} strokeWidth="1.5" strokeLinecap="round" /></svg>
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="8" y="8" width="32" height="32" rx="4" stroke={accent} strokeWidth="1.5"/><path d="M24 18v12M18 24h12" stroke={accent} strokeWidth="1.5" strokeLinecap="round"/></svg>
             <p style={{ fontFamily: mono, fontSize: "11px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: 0 }}>no campaigns yet</p>
             <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0 }}>click + new to create one</p>
           </div>
@@ -229,379 +274,39 @@ const ProjectList = ({ accent, projects, onOpen, onCreate, onRename, onDelete })
   );
 };
 
-// ─── TABS ──────────────────────────────────────────────────────────────────────
+// ─── MAP CANVAS ───────────────────────────────────────────────────────────────
+// Shared map canvas used both by MapTab (root level) and MapWindow (point drill-down)
+// mapUrl: string | null — the image url for this map level
+// points: array of map_points rows for this level (parent_point_id = null for root, or = pointId for sub-maps)
+// notes: all project notes (for picker and preview)
+// viewMode: "edit" | "read"
+// onUploadMap(url): called when a new map image is uploaded
+// onClearMap(): called when map is cleared
+// onAddPoint(xPct, yPct, noteId): called when a point is placed
+// onDeletePoint(pointId): called when a point is deleted
+// onDrillDown(point): called when a point is clicked in read mode
+// session, activeProject: for storage paths
+// accent, rgb
 
-const PlaceholderTab = ({ name, accent }) => (
-  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "16px", opacity: 0.35, userSelect: "none" }}>
-    <div style={{ width: "64px", height: "64px", border: `2px solid ${accent}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
-      <TabIcon tab={name} />
-    </div>
-    <p style={{ fontFamily: mono, fontSize: "12px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>{name} — coming soon</p>
-  </div>
-);
-
-// ─── MUSIC TAB ─────────────────────────────────────────────────────────────────
-
-const AUDIO_RE = /\.(mp3|wav|ogg|flac|m4a|aac)$/i;
-
-const MusicTab = ({ accent, activeProject, session }) => {
-  const [items, setItems] = useState([]);
-  const [currentPath, setCurrentPath] = useState("");
-  const [currentSong, setCurrentSong] = useState(null);
-  const [playing, setPlaying] = useState(false);
-  const [stopping, setStopping] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(80);
-  const [crossfade, setCrossfade] = useState(2);
-  const [queue, setQueue] = useState([]);
-  const [endMessage, setEndMessage] = useState(false);
-  const rgb = hexToRgb(accent);
-
-  const audioA = useRef(new Audio());
-  const audioB = useRef(new Audio());
-  const activeAudio = useRef("A"); // which one is currently the "main" player
-  const fadeInterval = useRef(null);
-  const progressInterval = useRef(null);
-
-  const getAudio = () => activeAudio.current === "A" ? audioA.current : audioB.current;
-  const getNextAudio = () => activeAudio.current === "A" ? audioB.current : audioA.current;
-  const swapAudio = () => { activeAudio.current = activeAudio.current === "A" ? "B" : "A"; };
-
-  const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data?.publicUrl;
-
-  // fetch audio files & folders
-  useEffect(() => {
-    const fetchItems = async () => {
-      const pathPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
-      const data = await listAllStorageFiles("campaign_files", pathPrefix);
-      setItems(data.filter(f => (!f.id && f.name !== ".emptyFolderPlaceholder") || (f.id && AUDIO_RE.test(f.name))));
-    };
-    fetchItems();
-  }, [activeProject.id, currentPath]);
-
-  // progress tracker
-  useEffect(() => {
-    clearInterval(progressInterval.current);
-    if (playing) {
-      progressInterval.current = setInterval(() => {
-        const a = getAudio();
-        if (a.duration) {
-          setProgress(a.currentTime);
-          setDuration(a.duration);
-        }
-      }, 250);
-    }
-    return () => clearInterval(progressInterval.current);
-  }, [playing, currentSong]);
-
-  // cleanup on unmount
-  useEffect(() => {
-    return () => {
-      clearInterval(fadeInterval.current);
-      clearInterval(progressInterval.current);
-      audioA.current.pause();
-      audioB.current.pause();
-    };
-  }, []);
-
-  const clearFade = () => { clearInterval(fadeInterval.current); fadeInterval.current = null; };
-
-  const targetVol = volume / 100;
-
-  const fadeOut = (audio, dur, onDone) => {
-    if (dur <= 0) { audio.pause(); if (onDone) onDone(); return; }
-    const step = 50;
-    const decrement = (audio.volume / (dur * 1000)) * step;
-    const interval = setInterval(() => {
-      audio.volume = Math.max(0, audio.volume - decrement);
-      if (audio.volume <= 0.001) { clearInterval(interval); audio.pause(); audio.volume = 0; if (onDone) onDone(); }
-    }, step);
-    return interval;
-  };
-
-  const fadeIn = (audio, dur, targetV) => {
-    if (dur <= 0) { audio.volume = targetV; return; }
-    audio.volume = 0;
-    const step = 50;
-    const increment = (targetV / (dur * 1000)) * step;
-    const interval = setInterval(() => {
-      audio.volume = Math.min(targetV, audio.volume + increment);
-      if (audio.volume >= targetV - 0.001) { clearInterval(interval); audio.volume = targetV; }
-    }, step);
-    return interval;
-  };
-
-  const playSong = (songName) => {
-    setEndMessage(false);
-    setStopping(false);
-    const url = getUrl(songName);
-    const cur = getAudio();
-
-    if (playing && currentSong && currentSong !== songName) {
-      // crossfade: fade out current, fade in next on the other audio element
-      fadeOut(cur, crossfade);
-      const next = getNextAudio();
-      next.src = url;
-      next.volume = 0;
-      next.play().then(() => { fadeIn(next, crossfade, targetVol); });
-      swapAudio();
-      setProgress(0);
-    } else if (currentSong === songName) {
-      if (!playing) {
-        // resume
-        cur.volume = 0;
-        cur.play().then(() => { fadeIn(cur, crossfade, targetVol); });
-      } else {
-        // restart
-        cur.currentTime = 0;
-        setProgress(0);
-      }
-    } else {
-      cur.src = url;
-      cur.volume = 0;
-      cur.play().then(() => { fadeIn(cur, crossfade, targetVol); });
-      setProgress(0);
-    }
-    setCurrentSong(songName);
-    setPlaying(true);
-  };
-
-  const stopSong = () => {
-    const cur = getAudio();
-    if (crossfade > 0) {
-      setStopping(true);
-      fadeOut(cur, crossfade, () => { setPlaying(false); setStopping(false); });
-    } else {
-      cur.pause(); cur.volume = 0;
-      setPlaying(false); setStopping(false);
-    }
-  };
-
-  const skipSong = () => {
-    if (queue.length > 0) {
-      const [nextSong, ...rest] = queue;
-      setQueue(rest);
-      playSong(nextSong);
-    } else {
-      stopSong();
-      setEndMessage(true);
-      setCurrentSong(null);
-      setProgress(0);
-    }
-  };
-
-  // auto-advance when song ends
-  useEffect(() => {
-    const handleEnded = () => skipSong();
-    const a = audioA.current;
-    const b = audioB.current;
-    a.addEventListener("ended", handleEnded);
-    b.addEventListener("ended", handleEnded);
-    return () => { a.removeEventListener("ended", handleEnded); b.removeEventListener("ended", handleEnded); };
-  }, [queue, crossfade, volume]);
-
-  // volume changes apply live
-  useEffect(() => {
-    const cur = getAudio();
-    if (playing && cur.volume > 0) cur.volume = targetVol;
-  }, [volume]);
-
-  const seekTo = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const a = getAudio();
-    if (a.duration) { a.currentTime = pct * a.duration; setProgress(a.currentTime); }
-  };
-
-  const addToQueue = (songName) => {
-    setEndMessage(false);
-    setQueue(prev => [...prev, songName]);
-  };
-
-  const removeFromQueue = (index) => {
-    setQueue(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const fmt = (s) => { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
-
-  const getBasename = (path) => path ? path.split('/').pop() : "";
-  const stripExt = (name) => name.replace(/\.[^.]+$/, "");
-
-  return (
-    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
-      {/* Item list */}
-      <div style={{ width: "260px", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
-        <div style={{ padding: "12px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          {currentPath ? (
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <button onClick={() => {
-                const parts = currentPath.split("/");
-                parts.pop();
-                setCurrentPath(parts.join("/"));
-              }} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", display: "flex", alignItems: "center", transition: "all 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>
-                ⬅
-              </button>
-              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                / {currentPath}
-              </span>
-            </div>
-          ) : (
-            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>catalog</p>
-          )}
-        </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: "6px" }}>
-          {items.length === 0 ? (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "12px", opacity: 0.2, color: accent }}>
-              {ICONS.audio}
-              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no items</p>
-              <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center" }}>upload audio in files tab</p>
-            </div>
-          ) : items.map(s => {
-            const isFolder = !s.id;
-            const fullPath = currentPath ? `${currentPath}/${s.name}` : s.name;
-            if (isFolder) {
-              return (
-                <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", color: "rgba(255,255,255,0.8)", transition: "all 0.15s" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                  onClick={() => setCurrentPath(fullPath)}>
-                  <span style={{ opacity: 0.8, flexShrink: 0, color: accent }}>{ICONS.folder}</span>
-                  <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
-                </div>
-              );
-            }
-            return (
-              <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", background: currentSong === fullPath ? `rgba(${rgb},0.12)` : "transparent", color: currentSong === fullPath ? accent : "rgba(255,255,255,0.55)", transition: "all 0.15s" }}
-                onMouseEnter={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-                onMouseLeave={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "transparent"; }}
-                onClick={() => playSong(fullPath)}>
-                <span style={{ opacity: 0.5, flexShrink: 0 }}>{ICONS.audio}</span>
-                <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s.name)}</span>
-                <button onClick={e => { e.stopPropagation(); addToQueue(fullPath); }}
-                  style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", flexShrink: 0, transition: "all 0.15s" }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}>
-                  +
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Player panel */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "24px", padding: "32px 24px" }}>
-          {/* Album art / icon */}
-          <div style={{ width: "120px", height: "120px", borderRadius: "12px", background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.15)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
-          </div>
-
-          {/* Song name */}
-          <p style={{ fontFamily: mono, fontSize: "14px", color: currentSong ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)", letterSpacing: "0.08em", margin: 0, textAlign: "center", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {currentSong ? stripExt(getBasename(currentSong)) : endMessage ? "no more songs in queue" : "select a song"}
-          </p>
-
-          {/* Progress bar */}
-          <div style={{ width: "100%", maxWidth: "360px" }}>
-            <div onClick={seekTo} style={{ width: "100%", height: "6px", background: "rgba(255,255,255,0.08)", borderRadius: "3px", cursor: "pointer", position: "relative", overflow: "hidden" }}>
-              <div style={{ width: `${duration > 0 ? (progress / duration) * 100 : 0}%`, height: "100%", background: accent, borderRadius: "3px", transition: "width 0.2s linear" }} />
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "6px" }}>
-              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)" }}>{fmt(progress)}</span>
-              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)" }}>{fmt(duration)}</span>
-            </div>
-          </div>
-
-          {/* Controls */}
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ position: "relative", width: "56px", height: "56px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <svg width="56" height="56" viewBox="0 0 56 56" style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none", transform: "rotate(-90deg)" }}>
-                <circle cx="28" cy="28" r="27" fill="none" stroke={playing && !stopping ? `rgba(${rgb},0.2)` : "transparent"} strokeWidth="2" style={{ transition: "stroke 0.3s" }} />
-                <circle cx="28" cy="28" r="27" fill="none" stroke={accent} strokeWidth="2"
-                  strokeDasharray="169.65"
-                  strokeDashoffset={stopping ? 169.65 : (playing ? 0 : 169.65)}
-                  style={{ transition: stopping ? `stroke-dashoffset ${crossfade}s linear` : (playing ? "stroke-dashoffset 0.3s ease" : "none"), opacity: playing || stopping ? 1 : 0 }} />
-              </svg>
-              <button onClick={() => playing && !stopping ? stopSong() : currentSong && playSong(currentSong)}
-                style={{ width: "48px", height: "48px", borderRadius: "50%", background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.3)`, color: accent, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
-                onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.22)`}
-                onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.12)`}>
-                {playing && !stopping ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-                )}
-              </button>
-            </div>
-            <button onClick={skipSong}
-              style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.3)`; e.currentTarget.style.color = accent; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4z" /><rect x="17" y="4" width="3" height="16" rx="1" /></svg>
-            </button>
-          </div>
-
-          {/* Volume */}
-          <div style={{ width: "100%", maxWidth: "280px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0, width: "48px" }}>vol</span>
-            <input type="range" min="0" max="100" value={volume} onChange={e => setVolume(Number(e.target.value))}
-              style={{ flex: 1, accentColor: accent, height: "4px", cursor: "pointer" }} />
-            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", width: "30px", textAlign: "right" }}>{volume}%</span>
-          </div>
-
-          {/* Crossfade */}
-          <div style={{ width: "100%", maxWidth: "280px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0, width: "48px" }}>fade</span>
-            <input type="range" min="0" max="12" step="0.5" value={crossfade} onChange={e => setCrossfade(Number(e.target.value))}
-              style={{ flex: 1, accentColor: accent, height: "4px", cursor: "pointer" }} />
-            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", width: "30px", textAlign: "right" }}>{crossfade}s</span>
-          </div>
-        </div>
-
-        {/* Queue */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px 16px", maxHeight: "180px", overflowY: "auto", background: "rgba(0,0,0,0.15)" }}>
-          <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)", margin: "0 0 8px" }}>queue ({queue.length})</p>
-          {queue.length === 0 ? (
-            <p style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.15)", margin: 0 }}>empty — click + on a song to add</p>
-          ) : queue.map((s, i) => (
-            <div key={`${s}-${i}`} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 6px", borderRadius: "4px" }}
-              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
-              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
-              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", width: "16px", flexShrink: 0 }}>{i + 1}.</span>
-              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.45)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(getBasename(s))}</span>
-              <button onClick={() => removeFromQueue(i)}
-                style={{ background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "12px", lineHeight: 1, padding: "0 2px" }}
-                onMouseEnter={e => e.currentTarget.style.color = "rgba(255,80,80,0.8)"}
-                onMouseLeave={e => e.currentTarget.style.color = "rgba(255,80,80,0.3)"}>×</button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-
-
-const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => {
+const MapCanvas = ({ mapUrl, points, notes, viewMode, onUploadMap, onClearMap, onAddPoint, onDeletePoint, onDrillDown, session, activeProject, accent, rgb }) => {
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
-  const [viewMode, setViewMode] = useState("read");
   const [hoverBtn, setHoverBtn] = useState(null);
+  const [placingPoint, setPlacingPoint] = useState(false);
+  const [showNotePicker, setShowNotePicker] = useState(false);
+  const [pendingClick, setPendingClick] = useState(null); // {xPct, yPct}
+  const [hoveredPoint, setHoveredPoint] = useState(null);
+  const [clickedPoint, setClickedPoint] = useState(null); // for edit mode delete popup
   const isPanning = useRef(false);
+  const didPan = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const containerRef = useRef(null);
-  const rgb = hexToRgb(accent);
+  const imgRef = useRef(null);
 
-  // reset pan/zoom when map changes
-  useEffect(() => { setTransform({ x: 0, y: 0, scale: 1 }); }, [activeProject.map_url]);
+  useEffect(() => { setTransform({ x: 0, y: 0, scale: 1 }); }, [mapUrl]);
 
-  const handleDrop = async (e) => {
+  const handleFileDrop = async (e) => {
     e.preventDefault();
     setDragging(false);
     const file = e.dataTransfer.files[0];
@@ -612,7 +317,7 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
     const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
     if (!error) {
       const { data } = supabase.storage.from("campaign_files").getPublicUrl(path);
-      onUpdateMap(data.publicUrl);
+      onUploadMap(data.publicUrl);
     } else {
       alert("Map upload failed: " + error.message);
     }
@@ -628,11 +333,7 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
       if (!rect) return { ...t, scale: newScale };
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
-      return {
-        scale: newScale,
-        x: cx - (cx - t.x) * (newScale / t.scale),
-        y: cy - (cy - t.y) * (newScale / t.scale),
-      };
+      return { scale: newScale, x: cx - (cx - t.x) * (newScale / t.scale), y: cy - (cy - t.y) * (newScale / t.scale) };
     });
   }, []);
 
@@ -646,63 +347,114 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
   const handleMouseDown = (e) => {
     if (e.button !== 0) return;
     isPanning.current = true;
+    didPan.current = false;
     lastPos.current = { x: e.clientX, y: e.clientY };
-    e.currentTarget.style.cursor = "grabbing";
   };
 
   const handleMouseMove = (e) => {
     if (!isPanning.current) return;
     const dx = e.clientX - lastPos.current.x;
     const dy = e.clientY - lastPos.current.y;
+    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) didPan.current = true;
     lastPos.current = { x: e.clientX, y: e.clientY };
     setTransform(t => ({ ...t, x: t.x + dx, y: t.y + dy }));
   };
 
   const handleMouseUp = (e) => {
     isPanning.current = false;
-    e.currentTarget.style.cursor = "grab";
+  };
+
+  // When placing a point: click on canvas computes position relative to image
+  const handleCanvasClick = (e) => {
+    if (didPan.current) { didPan.current = false; return; }
+    if (!placingPoint || !mapUrl) return;
+    // close any existing point popup
+    setClickedPoint(null);
+    const rect = containerRef.current.getBoundingClientRect();
+    const img = imgRef.current;
+    if (!img) return;
+    // image rendered at transform offset and scale
+    const imgNatW = img.naturalWidth;
+    const imgNatH = img.naturalHeight;
+    // The image is centered inside the transform div which is 100%x100%
+    // The transform div is translate(x,y) scale(s) with transformOrigin 0 0
+    // The image sits centered inside that div
+    // Container size:
+    const cW = rect.width;
+    const cH = rect.height;
+    // Image rendered size inside the scaled container:
+    const imgW = imgNatW * transform.scale;
+    const imgH = imgNatH * transform.scale;
+    // Top-left of image in container coords:
+    const imgLeft = transform.x + (cW - imgNatW) / 2 * transform.scale;
+    const imgTop = transform.y + (cH - imgNatH) / 2 * transform.scale;
+    // Click in container coords:
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    // Position within image as fraction:
+    const xPct = (cx - imgLeft) / imgW;
+    const yPct = (cy - imgTop) / imgH;
+    if (xPct < 0 || xPct > 1 || yPct < 0 || yPct > 1) return;
+    setPendingClick({ xPct, yPct });
+    setShowNotePicker(true);
+  };
+
+  const handleNoteSelected = (note) => {
+    setShowNotePicker(false);
+    setPlacingPoint(false);
+    if (pendingClick) {
+      onAddPoint(pendingClick.xPct, pendingClick.yPct, note.id);
+      setPendingClick(null);
+    }
   };
 
   const resetView = () => setTransform({ x: 0, y: 0, scale: 1 });
 
-  const handleClear = async () => {
-    onClearMap();
+  // Compute pixel position of a point dot given its xPct, yPct and current transform
+  const getPointPixels = (xPct, yPct) => {
+    if (!containerRef.current || !imgRef.current) return { left: 0, top: 0 };
+    const rect = containerRef.current.getBoundingClientRect();
+    const cW = rect.width;
+    const cH = rect.height;
+    const imgNatW = imgRef.current.naturalWidth;
+    const imgNatH = imgRef.current.naturalHeight;
+    const imgLeft = transform.x + (cW - imgNatW) / 2 * transform.scale;
+    const imgTop = transform.y + (cH - imgNatH) / 2 * transform.scale;
+    const imgW = imgNatW * transform.scale;
+    const imgH = imgNatH * transform.scale;
+    return { left: imgLeft + xPct * imgW, top: imgTop + yPct * imgH };
+  };
+
+  const noteMap = {};
+  notes.forEach(n => { noteMap[n.id] = n; });
+
+  const canvasStyle = {
+    flex: 1,
+    background: "#050505",
+    overflow: "hidden",
+    position: "relative",
+    cursor: placingPoint ? "crosshair" : (mapUrl ? "grab" : "default"),
+    outline: dragging ? `2px dashed rgba(${rgb},0.5)` : "2px dashed transparent",
+    transition: "outline-color 0.2s",
   };
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}>
-      {/* Top Toolbar */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", flexShrink: 0, justifyContent: "space-between", zIndex: 10 }}>
-        <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em" }}>
-          {activeProject.map_url ? `${Math.round(transform.scale * 100)}%` : ""}
-        </span>
-        <button onClick={() => setViewMode(viewMode === "edit" ? "read" : "edit")}
-          style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "4px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "4px 8px", cursor: "pointer", transition: "all 0.15s" }}
-          onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
-          onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
-          {viewMode === "edit" ? "read" : "edit"} mode
-        </button>
-      </div>
-
-      {/* Canvas */}
       <div
         ref={containerRef}
         onDragOver={viewMode === "edit" ? e => { e.preventDefault(); setDragging(true); } : undefined}
         onDragLeave={viewMode === "edit" ? () => setDragging(false) : undefined}
-        onDrop={viewMode === "edit" ? handleDrop : undefined}
-        onMouseDown={activeProject.map_url ? handleMouseDown : undefined}
-        onMouseMove={activeProject.map_url ? handleMouseMove : undefined}
-        onMouseUp={activeProject.map_url ? handleMouseUp : undefined}
-        onMouseLeave={activeProject.map_url ? handleMouseUp : undefined}
-        style={{ flex: 1, background: "#050505", overflow: "hidden", position: "relative", cursor: activeProject.map_url ? "grab" : "default", outline: dragging ? `2px dashed rgba(${rgb},0.5)` : "2px dashed transparent", transition: "outline-color 0.2s" }}>
-        {activeProject.map_url ? (
+        onDrop={viewMode === "edit" ? handleFileDrop : undefined}
+        onMouseDown={mapUrl ? handleMouseDown : undefined}
+        onMouseMove={mapUrl ? handleMouseMove : undefined}
+        onMouseUp={mapUrl ? handleMouseUp : undefined}
+        onMouseLeave={mapUrl ? handleMouseUp : undefined}
+        onClick={placingPoint && mapUrl ? handleCanvasClick : () => { setClickedPoint(null); }}
+        style={canvasStyle}>
+
+        {mapUrl ? (
           <div style={{ position: "absolute", inset: 0, transformOrigin: "0 0", transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
-            <img
-              src={activeProject.map_url}
-              alt="map"
-              draggable={false}
-              style={{ maxWidth: "none", maxHeight: "none", display: "block", userSelect: "none" }}
-            />
+            <img ref={imgRef} src={mapUrl} alt="map" draggable={false} style={{ maxWidth: "none", maxHeight: "none", display: "block", userSelect: "none" }} />
           </div>
         ) : (
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", opacity: dragging ? 0.6 : 0.2, color: accent, transition: "opacity 0.2s" }}>
@@ -712,40 +464,115 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
             </p>
           </div>
         )}
+
+        {/* Map Points */}
+        {mapUrl && points.map(pt => {
+          const pos = getPointPixels(pt.x_pct, pt.y_pct);
+          const linkedNote = noteMap[pt.note_id];
+          const isHovered = hoveredPoint === pt.id;
+          const isClicked = clickedPoint === pt.id;
+          return (
+            <div key={pt.id}
+              style={{ position: "absolute", left: pos.left, top: pos.top, transform: "translate(-50%, -50%)", zIndex: 15, pointerEvents: "all" }}
+              onMouseEnter={() => { if (viewMode === "read") setHoveredPoint(pt.id); }}
+              onMouseLeave={() => { setHoveredPoint(null); }}
+              onClick={e => {
+                e.stopPropagation();
+                if (viewMode === "edit") {
+                  setClickedPoint(isClicked ? null : pt.id);
+                } else {
+                  onDrillDown(pt);
+                }
+              }}>
+              {/* The dot — styled like the saturn dot */}
+              <div style={{
+                width: "12px", height: "12px", borderRadius: "50%",
+                background: accent,
+                boxShadow: `0 0 0 2px rgba(${rgb},0.3), 0 0 10px rgba(${rgb},0.6)`,
+                cursor: viewMode === "edit" ? "pointer" : "pointer",
+                transition: "transform 0.15s, box-shadow 0.15s",
+                transform: isHovered || isClicked ? "scale(1.4)" : "scale(1)",
+              }} />
+
+              {/* Hover preview in read mode */}
+              {viewMode === "read" && isHovered && linkedNote && (
+                <div style={{
+                  position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)",
+                  background: "#1a1a1a", border: `1px solid rgba(${rgb},0.3)`, borderRadius: "8px",
+                  padding: "12px 14px", minWidth: "200px", maxWidth: "280px", zIndex: 50,
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.6)", pointerEvents: "none",
+                }}>
+                  <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", color: accent, margin: "0 0 8px" }}>{linkedNote.name}</p>
+                  <p style={{ fontFamily: mono, fontSize: "11px", color: "rgba(255,255,255,0.6)", margin: 0, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: "100px", overflow: "hidden" }}>
+                    {linkedNote.content ? linkedNote.content.slice(0, 200) + (linkedNote.content.length > 200 ? "..." : "") : "no content"}
+                  </p>
+                  <p style={{ fontFamily: mono, fontSize: "9px", color: `rgba(${rgb},0.5)`, margin: "8px 0 0", letterSpacing: "0.1em", textTransform: "uppercase" }}>click to open</p>
+                </div>
+              )}
+
+              {/* Delete popup in edit mode */}
+              {viewMode === "edit" && isClicked && (
+                <div style={{
+                  position: "absolute", bottom: "20px", left: "50%", transform: "translateX(-50%)",
+                  background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px",
+                  padding: "8px", zIndex: 50, boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+                  display: "flex", flexDirection: "column", gap: "4px", minWidth: "130px",
+                }}>
+                  {linkedNote && <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.35)", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 4px", padding: "0 6px" }}>{linkedNote.name}</p>}
+                  <button onClick={e => { e.stopPropagation(); setClickedPoint(null); onDeletePoint(pt.id); }}
+                    style={{ background: "none", border: "none", color: "rgba(255,80,80,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", padding: "7px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left", transition: "background 0.15s" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.1)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}>delete point</button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Floating Toolbar */}
-      {viewMode === "edit" && activeProject.map_url && (
+      {/* Floating Toolbar — only in edit mode when map is loaded */}
+      {viewMode === "edit" && mapUrl && (
         <div style={{ position: "absolute", bottom: "32px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "8px", background: "rgba(18,18,18,0.85)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px", backdropFilter: "blur(12px)", zIndex: 20, boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
+
+          {/* Reset view */}
           <div style={{ position: "relative", display: "flex" }}>
-            {hoverBtn === "reset" && (
-              <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
-                reset view
-              </div>
-            )}
-            <button
-              onClick={resetView}
-              onMouseEnter={() => setHoverBtn("reset")}
-              onMouseLeave={() => setHoverBtn(null)}
+            {hoverBtn === "reset" && <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>reset view</div>}
+            <button onClick={resetView} onMouseEnter={() => setHoverBtn("reset")} onMouseLeave={() => setHoverBtn(null)}
               style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
               onMouseOver={e => { e.currentTarget.style.color = accent; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
               onMouseOut={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "none"; }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
             </button>
           </div>
-          
+
           <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.1)" }} />
 
+          {/* Place point tool */}
           <div style={{ position: "relative", display: "flex" }}>
-            {hoverBtn === "clear" && (
-              <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
-                clear map
-              </div>
-            )}
+            {hoverBtn === "point" && <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>add point</div>}
             <button
-              onClick={() => {
-                if (window.confirm("Are you sure you want to clear the map for this campaign?")) handleClear();
-              }}
+              onClick={() => { setPlacingPoint(p => !p); setClickedPoint(null); }}
+              onMouseEnter={() => setHoverBtn("point")}
+              onMouseLeave={() => setHoverBtn(null)}
+              style={{ background: placingPoint ? `rgba(${rgb},0.2)` : "none", border: placingPoint ? `1px solid rgba(${rgb},0.5)` : "none", color: placingPoint ? accent : "rgba(255,255,255,0.4)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+              onMouseOver={e => { if (!placingPoint) { e.currentTarget.style.color = accent; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; } }}
+              onMouseOut={e => { if (!placingPoint) { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "none"; } }}>
+              {/* pin/dot icon */}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="9" r="4"/>
+                <path d="M12 13v8"/>
+                <path d="M8.5 21h7"/>
+              </svg>
+            </button>
+          </div>
+
+          <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.1)" }} />
+
+          {/* Clear map */}
+          <div style={{ position: "relative", display: "flex" }}>
+            {hoverBtn === "clear" && <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>clear map</div>}
+            <button
+              onClick={() => { if (window.confirm("Clear this map?")) onClearMap(); }}
               onMouseEnter={() => setHoverBtn("clear")}
               onMouseLeave={() => setHoverBtn(null)}
               style={{ background: "none", border: "none", color: "rgba(255,100,100,0.5)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
@@ -754,9 +581,246 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
             </button>
           </div>
+
         </div>
       )}
 
+      {/* Note picker modal */}
+      {showNotePicker && (
+        <NotePickerModal
+          accent={accent}
+          notes={notes}
+          onClose={() => { setShowNotePicker(false); setPlacingPoint(false); setPendingClick(null); }}
+          onSelect={handleNoteSelected}
+        />
+      )}
+
+      {/* Placing point instruction */}
+      {placingPoint && !showNotePicker && (
+        <div style={{ position: "absolute", top: "16px", left: "50%", transform: "translateX(-50%)", background: `rgba(${rgb},0.15)`, border: `1px solid rgba(${rgb},0.35)`, borderRadius: "8px", padding: "8px 16px", fontFamily: mono, fontSize: "10px", color: accent, letterSpacing: "0.12em", textTransform: "uppercase", zIndex: 20, pointerEvents: "none" }}>
+          click on the map to place a point
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── MAP WINDOW (drill-down for a point) ──────────────────────────────────────
+// Shows a full map view for a specific point: left panel = embedded note, right = sub-map canvas
+
+const MapWindow = ({ accent, pointId, projectId, notes, session, activeProject, onBack }) => {
+  const rgb = hexToRgb(accent);
+  const [point, setPoint] = useState(null);
+  const [subPoints, setSubPoints] = useState([]);
+  const [viewMode, setViewMode] = useState("read");
+  const [drillStack, setDrillStack] = useState([]); // stack of {pointId, label}
+  const [currentPointId, setCurrentPointId] = useState(pointId);
+  const [currentPoint, setCurrentPoint] = useState(null);
+  const [currentSubPoints, setCurrentSubPoints] = useState([]);
+  const noteMap = {};
+  notes.forEach(n => { noteMap[n.id] = n; });
+
+  const loadPoint = async (pid) => {
+    const { data } = await supabase.from("map_points").select("*").eq("id", pid).single();
+    if (data) setCurrentPoint(data);
+  };
+
+  const loadSubPoints = async (pid) => {
+    const { data } = await supabase.from("map_points").select("*").eq("parent_point_id", pid);
+    if (data) setCurrentSubPoints(data);
+  };
+
+  useEffect(() => { loadPoint(currentPointId); loadSubPoints(currentPointId); }, [currentPointId]);
+
+  const handleUploadSubMap = async (url) => {
+    await supabase.from("map_points").update({ sub_map_url: url }).eq("id", currentPointId);
+    setCurrentPoint(p => ({ ...p, sub_map_url: url }));
+  };
+
+  const handleClearSubMap = async () => {
+    await supabase.from("map_points").update({ sub_map_url: null }).eq("id", currentPointId);
+    setCurrentPoint(p => ({ ...p, sub_map_url: null }));
+  };
+
+  const handleAddSubPoint = async (xPct, yPct, noteId) => {
+    const { data } = await supabase.from("map_points").insert({ project_id: projectId, parent_point_id: currentPointId, note_id: noteId, x_pct: xPct, y_pct: yPct }).select().single();
+    if (data) setCurrentSubPoints(prev => [...prev, data]);
+  };
+
+  const handleDeleteSubPoint = async (pid) => {
+    await supabase.from("map_points").delete().eq("id", pid);
+    setCurrentSubPoints(prev => prev.filter(p => p.id !== pid));
+  };
+
+  const handleDrillDown = (pt) => {
+    const label = noteMap[pt.note_id]?.name || "point";
+    setDrillStack(prev => [...prev, { pointId: currentPointId, label: noteMap[currentPoint?.note_id]?.name || "map" }]);
+    setCurrentPointId(pt.id);
+  };
+
+  const handleBack = () => {
+    if (drillStack.length > 0) {
+      const prev = drillStack[drillStack.length - 1];
+      setDrillStack(s => s.slice(0, -1));
+      setCurrentPointId(prev.pointId);
+    } else {
+      onBack();
+    }
+  };
+
+  const linkedNote = currentPoint ? noteMap[currentPoint.note_id] : null;
+
+  const renderNoteContent = (content) => {
+    if (!content) return <span style={{ opacity: 0.3, fontStyle: "italic" }}>no content</span>;
+    return content;
+  };
+
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      {/* Window header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button onClick={handleBack} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.35)", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
+            onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.35)"}>
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          </button>
+          {drillStack.length > 0 && (
+            <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.25)", letterSpacing: "0.1em" }}>
+              {drillStack.map(s => s.label).join(" › ")} ›{" "}
+            </span>
+          )}
+          <span style={{ fontFamily: mono, fontSize: "10px", color: accent, letterSpacing: "0.15em", textTransform: "uppercase" }}>
+            {linkedNote?.name || "unnamed point"}
+          </span>
+        </div>
+        <button onClick={() => setViewMode(v => v === "edit" ? "read" : "edit")}
+          style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "4px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "4px 8px", cursor: "pointer", transition: "all 0.15s" }}
+          onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
+          onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
+          {viewMode === "edit" ? "read" : "edit"} mode
+        </button>
+      </div>
+
+      {/* Body: note panel left + map canvas right */}
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        {/* Left: embedded note */}
+        <div style={{ width: "280px", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.15)", overflow: "hidden" }}>
+          <div style={{ padding: "14px 16px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: `rgba(${rgb},0.6)`, margin: 0 }}>{linkedNote?.name || "no note"}</p>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", padding: "16px", fontFamily: mono, fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+            {renderNoteContent(linkedNote?.content)}
+          </div>
+        </div>
+
+        {/* Right: sub-map canvas */}
+        <div style={{ flex: 1, overflow: "hidden" }}>
+          {currentPoint ? (
+            <MapCanvas
+              mapUrl={currentPoint.sub_map_url}
+              points={currentSubPoints}
+              notes={notes}
+              viewMode={viewMode}
+              onUploadMap={handleUploadSubMap}
+              onClearMap={handleClearSubMap}
+              onAddPoint={handleAddSubPoint}
+              onDeletePoint={handleDeleteSubPoint}
+              onDrillDown={handleDrillDown}
+              session={session}
+              activeProject={activeProject}
+              accent={accent}
+              rgb={rgb}
+            />
+          ) : (
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.2 }}>
+              <span style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent }}>loading...</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── MAP TAB ──────────────────────────────────────────────────────────────────
+
+const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => {
+  const rgb = hexToRgb(accent);
+  const [viewMode, setViewMode] = useState("read");
+  const [points, setPoints] = useState([]);
+  const [notes, setNotes] = useState([]);
+  const [drillPoint, setDrillPoint] = useState(null); // if set, show MapWindow for this point
+
+  useEffect(() => {
+    const loadPoints = async () => {
+      const { data } = await supabase.from("map_points").select("*").eq("project_id", activeProject.id).is("parent_point_id", null);
+      if (data) setPoints(data);
+    };
+    const loadNotes = async () => {
+      const { data } = await supabase.from("notes").select("*").eq("project_id", activeProject.id).order("created_at", { ascending: true });
+      if (data) setNotes(data);
+    };
+    loadPoints();
+    loadNotes();
+  }, [activeProject.id]);
+
+  const handleAddPoint = async (xPct, yPct, noteId) => {
+    const { data } = await supabase.from("map_points").insert({ project_id: activeProject.id, parent_point_id: null, note_id: noteId, x_pct: xPct, y_pct: yPct }).select().single();
+    if (data) setPoints(prev => [...prev, data]);
+  };
+
+  const handleDeletePoint = async (pid) => {
+    await supabase.from("map_points").delete().eq("id", pid);
+    setPoints(prev => prev.filter(p => p.id !== pid));
+  };
+
+  if (drillPoint) {
+    return (
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <MapWindow
+          accent={accent}
+          pointId={drillPoint.id}
+          projectId={activeProject.id}
+          notes={notes}
+          session={session}
+          activeProject={activeProject}
+          onBack={() => setDrillPoint(null)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}>
+      {/* Top bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", flexShrink: 0, justifyContent: "space-between", zIndex: 10 }}>
+        <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em" }}>
+          {activeProject.map_url ? "" : ""}
+        </span>
+        <button onClick={() => setViewMode(v => v === "edit" ? "read" : "edit")}
+          style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "4px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "4px 8px", cursor: "pointer", transition: "all 0.15s" }}
+          onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
+          onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
+          {viewMode === "edit" ? "read" : "edit"} mode
+        </button>
+      </div>
+
+      <MapCanvas
+        mapUrl={activeProject.map_url}
+        points={points}
+        notes={notes}
+        viewMode={viewMode}
+        onUploadMap={onUpdateMap}
+        onClearMap={onClearMap}
+        onAddPoint={handleAddPoint}
+        onDeletePoint={handleDeletePoint}
+        onDrillDown={(pt) => setDrillPoint(pt)}
+        session={session}
+        activeProject={activeProject}
+        accent={accent}
+        rgb={rgb}
+      />
     </div>
   );
 };
@@ -863,13 +927,10 @@ const NotesTab = ({ accent, activeProject, session }) => {
           <span style={{ opacity: 0.5, flexShrink: 0 }}>{n.is_folder ? (expanded.has(n.id) ? ICONS.chevronDown : ICONS.chevronRight) : <span style={{ width: 10, display: "inline-block" }} />}</span>
           <span style={{ opacity: 0.6, flexShrink: 0 }}>{n.is_folder ? ICONS.folder : ICONS.note}</span>
           <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.name}</span>
-          {/* three-dots menu trigger */}
           <div style={{ position: "relative", flexShrink: 0 }} onClick={e => { e.stopPropagation(); setItemMenuOpen(itemMenuOpen === n.id ? null : n.id); }}>
             <button style={{ background: "none", border: "none", color: "rgba(255,255,255,0.2)", cursor: "pointer", padding: "2px 4px", fontSize: "13px", lineHeight: 1, borderRadius: "3px", transition: "color 0.15s" }}
               onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.6)"}
-              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"}>
-              ···
-            </button>
+              onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.2)"}>···</button>
             {itemMenuOpen === n.id && (
               <>
                 <div onClick={e => { e.stopPropagation(); setItemMenuOpen(null); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
@@ -877,15 +938,11 @@ const NotesTab = ({ accent, activeProject, session }) => {
                   <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); const newName = window.prompt("Rename:", n.name); renameNote(n.id, newName); }}
                     style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "7px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
                     onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.07)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "none"}>
-                    rename
-                  </button>
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}>rename</button>
                   <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); deleteNote(n.id); }}
                     style={{ background: "none", border: "none", color: "rgba(255,80,80,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "7px 10px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
                     onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.08)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "none"}>
-                    delete
-                  </button>
+                    onMouseLeave={e => e.currentTarget.style.background = "none"}>delete</button>
                 </div>
               </>
             )}
@@ -917,9 +974,7 @@ const NotesTab = ({ accent, activeProject, session }) => {
                 const val = e.target.value;
                 setNotes(prev => prev.map(n => n.id === activeNote.id ? { ...n, name: val } : n));
                 clearTimeout(nameDebounceRef.current);
-                nameDebounceRef.current = setTimeout(() => {
-                  supabase.from("notes").update({ name: val }).eq("id", activeNote.id);
-                }, 500);
+                nameDebounceRef.current = setTimeout(() => { supabase.from("notes").update({ name: val }).eq("id", activeNote.id); }, 500);
               }}
                 style={{ background: "none", border: "none", outline: "none", color: "#fff", fontFamily: mono, fontSize: "13px", fontWeight: "500", flex: 1, letterSpacing: "0.05em" }} />
               <button onClick={() => setViewMode(viewMode === "edit" ? "read" : "edit")}
@@ -965,44 +1020,25 @@ const FilesTab = ({ accent, activeProject, session }) => {
   const handleDrop = async (e, targetFolder = null) => {
     e.preventDefault(); e.stopPropagation();
     setDragging(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setUploading(true);
       const droppedFiles = Array.from(e.dataTransfer.files);
-      
-      const destinationPath = targetFolder 
-        ? (currentPath ? `${currentPath}/${targetFolder}` : targetFolder)
-        : currentPath;
-        
-      const prefix = destinationPath 
-        ? `${session.user.id}/${activeProject.id}/${destinationPath}` 
-        : `${session.user.id}/${activeProject.id}`;
-
+      const destinationPath = targetFolder ? (currentPath ? `${currentPath}/${targetFolder}` : targetFolder) : currentPath;
+      const prefix = destinationPath ? `${session.user.id}/${activeProject.id}/${destinationPath}` : `${session.user.id}/${activeProject.id}`;
       await Promise.all(droppedFiles.map(async (file) => {
         const path = `${prefix}/${file.name}`;
         const { error } = await supabase.storage.from("campaign_files").upload(path, file, { upsert: true });
         if (error) console.error(`Upload failed for ${file.name}:`, error.message);
       }));
-
       await fetchFiles();
       setUploading(false);
-    } 
-    else if (draggedItem && targetFolder && targetFolder !== draggedItem.name) {
+    } else if (draggedItem && targetFolder && targetFolder !== draggedItem.name) {
       if (!draggedItem.id) return;
-      
       setUploading(true);
       const oldPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
       const newPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${targetFolder}` : `${session.user.id}/${activeProject.id}/${targetFolder}`;
-      
-      const { error } = await supabase.storage.from("campaign_files").move(
-        `${oldPrefix}/${draggedItem.name}`,
-        `${newPrefix}/${draggedItem.name}`
-      );
-      
-      if (error) {
-        console.error("Move failed:", error.message);
-        alert("Move failed: " + error.message);
-      }
+      const { error } = await supabase.storage.from("campaign_files").move(`${oldPrefix}/${draggedItem.name}`, `${newPrefix}/${draggedItem.name}`);
+      if (error) { console.error("Move failed:", error.message); alert("Move failed: " + error.message); }
       setDraggedItem(null);
       await fetchFiles();
       setUploading(false);
@@ -1034,24 +1070,18 @@ const FilesTab = ({ accent, activeProject, session }) => {
     } else {
       const confirm = window.confirm(`Delete folder "${item.name}" and all its contents?`);
       if (!confirm) return;
-      
       setUploading(true);
       const folderPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${item.name}` : `${session.user.id}/${activeProject.id}/${item.name}`;
-      
       const deleteRecursively = async (prefix) => {
         const data = await listAllStorageFiles("campaign_files", prefix);
         if (data.length > 0) {
           for (const d of data) {
-            if (d.id) {
-              await supabase.storage.from("campaign_files").remove([`${prefix}/${d.name}`]);
-            } else {
-              await deleteRecursively(`${prefix}/${d.name}`);
-            }
+            if (d.id) { await supabase.storage.from("campaign_files").remove([`${prefix}/${d.name}`]); }
+            else { await deleteRecursively(`${prefix}/${d.name}`); }
           }
         }
         await supabase.storage.from("campaign_files").remove([`${prefix}/.emptyFolderPlaceholder`]);
       };
-      
       await deleteRecursively(folderPrefix);
       await fetchFiles();
       setUploading(false);
@@ -1061,33 +1091,23 @@ const FilesTab = ({ accent, activeProject, session }) => {
   const renameItem = async (item) => {
     const newName = window.prompt("Rename to:", item.name);
     if (!newName || !newName.trim() || newName === item.name) return;
-    
     setUploading(true);
     const oldPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
-    
     if (item.id) {
-      const { error } = await supabase.storage.from("campaign_files").move(
-        `${oldPrefix}/${item.name}`,
-        `${oldPrefix}/${newName.trim()}`
-      );
+      const { error } = await supabase.storage.from("campaign_files").move(`${oldPrefix}/${item.name}`, `${oldPrefix}/${newName.trim()}`);
       if (error) alert("Rename failed: " + error.message);
     } else {
       const oldFolderPrefix = `${oldPrefix}/${item.name}`;
       const newFolderPrefix = `${oldPrefix}/${newName.trim()}`;
-      
       const moveRecursively = async (oldP, newP) => {
         const data = await listAllStorageFiles("campaign_files", oldP);
         if (data.length > 0) {
           for (const d of data) {
-            if (d.id) {
-              await supabase.storage.from("campaign_files").move(`${oldP}/${d.name}`, `${newP}/${d.name}`);
-            } else {
-              await moveRecursively(`${oldP}/${d.name}`, `${newP}/${d.name}`);
-            }
+            if (d.id) { await supabase.storage.from("campaign_files").move(`${oldP}/${d.name}`, `${newP}/${d.name}`); }
+            else { await moveRecursively(`${oldP}/${d.name}`, `${newP}/${d.name}`); }
           }
         }
       };
-      
       await moveRecursively(oldFolderPrefix, newFolderPrefix);
     }
     await fetchFiles();
@@ -1107,23 +1127,14 @@ const FilesTab = ({ accent, activeProject, session }) => {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {currentPath ? (
             <>
-              <button onClick={() => {
-                const parts = currentPath.split("/");
-                parts.pop();
-                setCurrentPath(parts.join("/"));
-              }} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "4px 8px", fontFamily: mono, fontSize: "10px", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>
-                ⬅ back
-              </button>
-              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>
-                / {currentPath}
-              </span>
+              <button onClick={() => { const parts = currentPath.split("/"); parts.pop(); setCurrentPath(parts.join("/")); }}
+                style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "4px 8px", fontFamily: mono, fontSize: "10px", display: "flex", alignItems: "center", gap: "4px", transition: "all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>⬅ back</button>
+              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.4)" }}>/ {currentPath}</span>
             </>
           ) : (
-            <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>
-              {files.length} item{files.length !== 1 ? "s" : ""}
-            </span>
+            <span style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>{files.length} item{files.length !== 1 ? "s" : ""}</span>
           )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -1132,9 +1143,7 @@ const FilesTab = ({ accent, activeProject, session }) => {
           </span>
           <button onClick={createFolder} style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "6px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "6px 12px", cursor: "pointer", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
-            onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
-            + folder
-          </button>
+            onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>+ folder</button>
         </div>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
@@ -1149,66 +1158,45 @@ const FilesTab = ({ accent, activeProject, session }) => {
               const isFolder = !f.id;
               const url = isFolder ? null : getUrl(f.name);
               const isImg = isFolder ? false : /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(f.name);
-              
               return (
-                <div key={f.name} 
+                <div key={f.name}
                   draggable={!isFolder}
-                  onDragStart={e => { 
-                    if (!isFolder) setDraggedItem(f);
-                  }}
+                  onDragStart={() => { if (!isFolder) setDraggedItem(f); }}
                   onDragEnd={() => setDraggedItem(null)}
-                  onDragOver={e => { 
-                    if (isFolder) e.preventDefault(); 
-                  }}
-                  onDrop={e => {
-                    if (isFolder) handleDrop(e, f.name);
-                  }}
-                  onClick={() => {
-                    if (isFolder) {
-                      setCurrentPath(currentPath ? `${currentPath}/${f.name}` : f.name);
-                    }
-                  }}
+                  onDragOver={e => { if (isFolder) e.preventDefault(); }}
+                  onDrop={e => { if (isFolder) handleDrop(e, f.name); }}
+                  onClick={() => { if (isFolder) setCurrentPath(currentPath ? `${currentPath}/${f.name}` : f.name); }}
                   style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", padding: "14px", borderRadius: "8px", display: "flex", flexDirection: "column", gap: "8px", position: "relative", alignItems: "center", cursor: isFolder ? "pointer" : "default", transition: "border-color 0.15s" }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`}
                   onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"}>
-                  
                   {isFolder ? (
-                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.8 }}>
-                      {ICONS.folder}
-                    </div>
+                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center", opacity: 0.8 }}>{ICONS.folder}</div>
                   ) : isImg ? (
                     <div style={{ width: "100%", height: "80px", borderRadius: "4px", overflow: "hidden", display: "flex", justifyContent: "center", alignItems: "center", background: "rgba(0,0,0,0.2)" }}>
                       <img src={url} alt={f.name} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} draggable={false} />
                     </div>
                   ) : (
-                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      {getFileIcon(f.name)}
-                    </div>
+                    <div style={{ height: "80px", color: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>{getFileIcon(f.name)}</div>
                   )}
-                  
                   {isFolder ? (
                     <span style={{ width: "100%", fontFamily: mono, fontSize: "11px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.8)", textAlign: "center" }}>{f.name}</span>
                   ) : (
                     <a href={url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ width: "100%", fontFamily: mono, fontSize: "10px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(255,255,255,0.6)", textDecoration: "none", textAlign: "center" }}>{f.name}</a>
                   )}
-                  
                   <div style={{ position: "absolute", top: "6px", right: "6px" }} onClick={e => e.stopPropagation()}>
-                    <button onClick={e => { e.stopPropagation(); setItemMenuOpen(itemMenuOpen === f.name ? null : f.name); }} 
+                    <button onClick={e => { e.stopPropagation(); setItemMenuOpen(itemMenuOpen === f.name ? null : f.name); }}
                       style={{ background: "rgba(0,0,0,0.5)", border: "none", borderRadius: "4px", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "2px 6px", fontSize: "14px", lineHeight: 1, opacity: 0, transition: "opacity 0.15s" }}
                       onMouseEnter={e => { e.currentTarget.style.color = "rgba(255,255,255,0.8)"; }}
                       onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
                       className="item-menu-btn">···</button>
-                    
                     {itemMenuOpen === f.name && (
                       <>
                         <div onClick={e => { e.stopPropagation(); setItemMenuOpen(null); }} style={{ position: "fixed", inset: 0, zIndex: 9 }} />
                         <div style={{ position: "absolute", right: 0, top: "24px", zIndex: 10, background: "#1c1c1c", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "4px", minWidth: "100px", display: "flex", flexDirection: "column", gap: "2px", boxShadow: "0 4px 12px rgba(0,0,0,0.5)" }}>
-                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); renameItem(f); }}
-                            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); renameItem(f); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
                             onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
                             onMouseLeave={e => e.currentTarget.style.background = "none"}>rename</button>
-                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); deleteItem(f); }}
-                            style={{ background: "none", border: "none", color: "rgba(255,80,80,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
+                          <button onClick={e => { e.stopPropagation(); setItemMenuOpen(null); deleteItem(f); }} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.7)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", padding: "6px 8px", cursor: "pointer", borderRadius: "4px", textAlign: "left" }}
                             onMouseEnter={e => e.currentTarget.style.background = "rgba(255,80,80,0.1)"}
                             onMouseLeave={e => e.currentTarget.style.background = "none"}>delete</button>
                         </div>
@@ -1232,7 +1220,7 @@ const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
   const presets = ["#fb4f2b", "#e63946", "#f4a261", "#2ec4b6", "#8338ec", "#06d6a0", "#118ab2"];
   const rgb = hexToRgb(accent);
   const [feedbackMsg, setFeedbackMsg] = useState("");
-  const [feedbackStatus, setFeedbackStatus] = useState(null); // null | "sending" | "sent" | "error"
+  const [feedbackStatus, setFeedbackStatus] = useState(null);
 
   const handleSendFeedback = async () => {
     if (!feedbackMsg.trim()) return;
@@ -1266,7 +1254,6 @@ const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
           <span style={{ fontFamily: mono, fontSize: "13px", color: accent }}>saturn — dm toolkit</span>
         </div>
       </div>
-      {/* Feedback section */}
       <div style={{ paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: accent, margin: "0 0 12px" }}>send bugs or ideas for features</p>
         <textarea value={feedbackMsg} onChange={e => setFeedbackMsg(e.target.value)} placeholder="describe a bug or suggest a feature..."
@@ -1290,6 +1277,212 @@ const SettingsTab = ({ accent, setAccentAndSave, user, onSignOut }) => {
         <button onClick={onSignOut} style={{ background: "none", border: "1px solid rgba(255,80,80,0.2)", borderRadius: "6px", color: "rgba(255,100,100,0.6)", fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "7px 14px", cursor: "pointer", transition: "all 0.15s" }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.5)"; e.currentTarget.style.color = "rgba(255,100,100,0.9)"; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.2)"; e.currentTarget.style.color = "rgba(255,100,100,0.6)"; }}>sign out</button>
+      </div>
+    </div>
+  );
+};
+
+// ─── MUSIC TAB (unchanged, preserved fully) ───────────────────────────────────
+
+const MusicTab = ({ accent, activeProject, session }) => {
+  const [items, setItems] = useState([]);
+  const [currentPath, setCurrentPath] = useState("");
+  const [currentSong, setCurrentSong] = useState(null);
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [crossfade, setCrossfade] = useState(3);
+  const [queue, setQueue] = useState([]);
+  const [endMessage, setEndMessage] = useState(false);
+  const audioA = useRef(new Audio());
+  const audioB = useRef(new Audio());
+  const active = useRef("a");
+  const rgb = hexToRgb(accent);
+
+  const getAudio = () => active.current === "a" ? audioA.current : audioB.current;
+  const getNext = () => active.current === "a" ? audioB.current : audioA.current;
+  const targetVol = volume;
+
+  const fetchItems = async () => {
+    const prefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
+    const data = await listAllStorageFiles("campaign_files", prefix);
+    const audioExts = /\.(mp3|wav|ogg|flac|m4a|aac)$/i;
+    const filtered = data.filter(f => f.name !== ".emptyFolderPlaceholder" && (!f.id || audioExts.test(f.name)));
+    setItems(filtered);
+  };
+
+  useEffect(() => { fetchItems(); }, [activeProject.id, currentPath]);
+
+  const getUrl = (name) => {
+    const p = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${name}` : `${session.user.id}/${activeProject.id}/${name}`;
+    return supabase.storage.from("campaign_files").getPublicUrl(p).data?.publicUrl;
+  };
+
+  const playSong = (path) => {
+    setEndMessage(false);
+    const url = getUrl(path.split("/").pop());
+    const cur = getAudio();
+    cur.src = url;
+    cur.volume = targetVol;
+    cur.play();
+    setCurrentSong(path);
+    setPlaying(true);
+  };
+
+  useEffect(() => {
+    const cur = getAudio();
+    const onTime = () => setProgress(cur.currentTime);
+    const onMeta = () => setDuration(cur.duration);
+    const onEnd = () => {
+      if (queue.length > 0) {
+        const [next, ...rest] = queue;
+        setQueue(rest);
+        playSong(next);
+      } else {
+        setPlaying(false);
+        setEndMessage(true);
+      }
+    };
+    cur.addEventListener("timeupdate", onTime);
+    cur.addEventListener("loadedmetadata", onMeta);
+    cur.addEventListener("ended", onEnd);
+    return () => {
+      cur.removeEventListener("timeupdate", onTime);
+      cur.removeEventListener("loadedmetadata", onMeta);
+      cur.removeEventListener("ended", onEnd);
+    };
+  }, [queue, crossfade, volume]);
+
+  useEffect(() => {
+    const cur = getAudio();
+    if (playing && cur.volume > 0) cur.volume = targetVol;
+  }, [volume]);
+
+  const seekTo = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const a = getAudio();
+    if (a.duration) { a.currentTime = pct * a.duration; setProgress(a.currentTime); }
+  };
+
+  const addToQueue = (songName) => { setEndMessage(false); setQueue(prev => [...prev, songName]); };
+  const removeFromQueue = (index) => { setQueue(prev => prev.filter((_, i) => i !== index)); };
+  const fmt = (s) => { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
+  const getBasename = (path) => path ? path.split("/").pop() : "";
+  const stripExt = (name) => name.replace(/\.[^.]+$/, "");
+
+  return (
+    <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
+      <div style={{ width: "260px", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
+        <div style={{ padding: "12px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          {currentPath ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button onClick={() => { const parts = currentPath.split("/"); parts.pop(); setCurrentPath(parts.join("/")); }}
+                style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", display: "flex", alignItems: "center", transition: "all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>⬅</button>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>/ {currentPath}</span>
+            </div>
+          ) : (
+            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>catalog</p>
+          )}
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "6px" }}>
+          {items.length === 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "12px", opacity: 0.2, color: accent }}>
+              {ICONS.audio}
+              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no items</p>
+              <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center" }}>upload audio in files tab</p>
+            </div>
+          ) : items.map(s => {
+            const isFolder = !s.id;
+            const fullPath = currentPath ? `${currentPath}/${s.name}` : s.name;
+            if (isFolder) return (
+              <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", color: "rgba(255,255,255,0.8)", transition: "all 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                onClick={() => setCurrentPath(fullPath)}>
+                <span style={{ opacity: 0.8, flexShrink: 0, color: accent }}>{ICONS.folder}</span>
+                <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+              </div>
+            );
+            return (
+              <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", background: currentSong === fullPath ? `rgba(${rgb},0.12)` : "transparent", color: currentSong === fullPath ? accent : "rgba(255,255,255,0.55)", transition: "all 0.15s" }}
+                onMouseEnter={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                onMouseLeave={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "transparent"; }}
+                onClick={() => playSong(fullPath)}>
+                <span style={{ opacity: 0.5, flexShrink: 0 }}>{ICONS.audio}</span>
+                <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s.name)}</span>
+                <button onClick={e => { e.stopPropagation(); addToQueue(fullPath); }}
+                  style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", flexShrink: 0, transition: "all 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}>+</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "24px", padding: "32px 24px" }}>
+          <div style={{ width: "120px", height: "120px", borderRadius: "12px", background: `rgba(${rgb},0.08)`, border: `1px solid rgba(${rgb},0.15)`, display: "flex", alignItems: "center", justifyContent: "center", color: accent }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <p style={{ fontFamily: mono, fontSize: "13px", color: currentSong ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.2)", margin: "0 0 4px", letterSpacing: "0.05em" }}>
+              {currentSong ? stripExt(getBasename(currentSong)) : "nothing playing"}
+            </p>
+            {endMessage && <p style={{ fontFamily: mono, fontSize: "9px", color: `rgba(${rgb},0.5)`, letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>queue ended</p>}
+          </div>
+          <div style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div onClick={currentSong ? seekTo : undefined} style={{ width: "100%", height: "3px", background: "rgba(255,255,255,0.08)", borderRadius: "2px", cursor: currentSong ? "pointer" : "default", position: "relative" }}>
+              <div style={{ height: "100%", background: accent, borderRadius: "2px", width: `${duration ? (progress / duration) * 100 : 0}%`, transition: "width 0.5s linear" }} />
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>{fmt(progress)}</span>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)" }}>{fmt(duration)}</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+              <button onClick={() => { const a = getAudio(); if (a.currentTime > 3) a.currentTime = 0; else if (currentSong) playSong(currentSong); }}
+                style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", transition: "color 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.color = accent} onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
+              </button>
+              <button onClick={() => { const a = getAudio(); if (playing) { a.pause(); setPlaying(false); } else if (currentSong) { a.play(); setPlaying(true); } }}
+                style={{ background: `rgba(${rgb},0.12)`, border: `1px solid rgba(${rgb},0.3)`, color: accent, cursor: "pointer", padding: "12px", borderRadius: "50%", display: "flex", transition: "all 0.15s" }}
+                onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.22)`} onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.12)`}>
+                {playing
+                  ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                }
+              </button>
+              <button onClick={() => { if (queue.length > 0) { const [next, ...rest] = queue; setQueue(rest); playSong(next); } }}
+                style={{ background: "none", border: "none", color: queue.length > 0 ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)", cursor: queue.length > 0 ? "pointer" : "default", padding: "8px", borderRadius: "6px", display: "flex", transition: "color 0.15s" }}
+                onMouseEnter={e => { if (queue.length > 0) e.currentTarget.style.color = accent; }} onMouseLeave={e => { e.currentTarget.style.color = queue.length > 0 ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.15)"; }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+              </button>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", letterSpacing: "0.1em", textTransform: "uppercase", flexShrink: 0 }}>vol</span>
+              <input type="range" min="0" max="1" step="0.01" value={volume} onChange={e => setVolume(parseFloat(e.target.value))} style={{ flex: 1, accentColor: accent }} />
+            </div>
+          </div>
+        </div>
+        {queue.length > 0 && (
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "10px 20px", maxHeight: "160px", overflowY: "auto" }}>
+            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: "0 0 8px" }}>queue</p>
+            {queue.map((s, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
+                <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", width: "16px", textAlign: "right", flexShrink: 0 }}>{i + 1}</span>
+                <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.45)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(getBasename(s))}</span>
+                <button onClick={() => removeFromQueue(i)} style={{ background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "12px", lineHeight: 1, padding: "0 2px" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "rgba(255,80,80,0.8)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "rgba(255,80,80,0.3)"}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1416,7 +1609,7 @@ export default function Saturn() {
               <button onClick={() => setActiveProject(null)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "4px 2px", display: "flex", alignItems: "center", transition: "color 0.15s" }}
                 onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.7)"}
                 onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.3)"}>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             )}
             <div style={{ display: "flex", alignItems: "baseline", gap: "10px" }}>
@@ -1454,9 +1647,9 @@ export default function Saturn() {
               <div style={{ display: activeTab === "music" ? "block" : "none", height: "100%" }}>
                 <MusicTab accent={accent} activeProject={activeProject} session={session} />
               </div>
-              {activeTab === "map" && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateMap={handleUpdateMap} onClearMap={handleClearMap} />}
-              {activeTab === "notes" && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
-              {activeTab === "files" && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
+              {activeTab === "map"      && <MapTab accent={accent} activeProject={activeProject} session={session} onUpdateMap={handleUpdateMap} onClearMap={handleClearMap} />}
+              {activeTab === "notes"    && <NotesTab accent={accent} activeProject={activeProject} session={session} />}
+              {activeTab === "files"    && <FilesTab accent={accent} activeProject={activeProject} session={session} />}
               {activeTab === "settings" && <SettingsTab accent={accent} setAccentAndSave={setAccentAndSave} user={session.user} onSignOut={handleSignOut} />}
             </div>
           </>
