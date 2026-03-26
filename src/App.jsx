@@ -12,6 +12,20 @@ const hexToRgb = (hex) => {
   return `${r}, ${g}, ${b}`;
 };
 
+const listAllStorageFiles = async (bucket, path) => {
+  let allData = [];
+  let offset = 0;
+  const limit = 100;
+  while (true) {
+    const { data, error } = await supabase.storage.from(bucket).list(path, { limit, offset });
+    if (error || !data || data.length === 0) break;
+    allData.push(...data);
+    if (data.length < limit) break;
+    offset += limit;
+  }
+  return allData;
+};
+
 const ICONS = {
   upload: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>,
   note: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>,
@@ -254,8 +268,8 @@ const MusicTab = ({ accent, activeProject, session }) => {
   // fetch audio files
   useEffect(() => {
     const fetchSongs = async () => {
-      const { data } = await supabase.storage.from("campaign_files").list(`${session.user.id}/${activeProject.id}`);
-      if (data) setSongs(data.filter(f => AUDIO_RE.test(f.name)));
+      const data = await listAllStorageFiles("campaign_files", `${session.user.id}/${activeProject.id}`);
+      setSongs(data.filter(f => AUDIO_RE.test(f.name)));
     };
     fetchSongs();
   }, [activeProject.id]);
@@ -864,10 +878,8 @@ const FilesTab = ({ accent, activeProject, session }) => {
 
   const fetchFiles = async () => {
     const pathPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
-    const { data } = await supabase.storage.from("campaign_files").list(pathPrefix);
-    if (data) {
-      setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
-    }
+    const data = await listAllStorageFiles("campaign_files", pathPrefix);
+    setFiles(data.filter(f => f.name !== ".emptyFolderPlaceholder"));
   };
 
   useEffect(() => { fetchFiles(); }, [activeProject.id, currentPath]);
@@ -949,8 +961,8 @@ const FilesTab = ({ accent, activeProject, session }) => {
       const folderPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}/${item.name}` : `${session.user.id}/${activeProject.id}/${item.name}`;
       
       const deleteRecursively = async (prefix) => {
-        const { data } = await supabase.storage.from("campaign_files").list(prefix);
-        if (data && data.length > 0) {
+        const data = await listAllStorageFiles("campaign_files", prefix);
+        if (data.length > 0) {
           for (const d of data) {
             if (d.id) {
               await supabase.storage.from("campaign_files").remove([`${prefix}/${d.name}`]);
@@ -986,8 +998,8 @@ const FilesTab = ({ accent, activeProject, session }) => {
       const newFolderPrefix = `${oldPrefix}/${newName.trim()}`;
       
       const moveRecursively = async (oldP, newP) => {
-        const { data } = await supabase.storage.from("campaign_files").list(oldP);
-        if (data) {
+        const data = await listAllStorageFiles("campaign_files", oldP);
+        if (data.length > 0) {
           for (const d of data) {
             if (d.id) {
               await supabase.storage.from("campaign_files").move(`${oldP}/${d.name}`, `${newP}/${d.name}`);
