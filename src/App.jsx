@@ -17,7 +17,11 @@ const listAllStorageFiles = async (bucket, path) => {
   let offset = 0;
   const limit = 100;
   while (true) {
-    const { data, error } = await supabase.storage.from(bucket).list(path, { limit, offset });
+    const { data, error } = await supabase.storage.from(bucket).list(path, {
+      limit,
+      offset,
+      sortBy: { column: 'name', order: 'asc' }
+    });
     if (error || !data || data.length === 0) break;
     allData.push(...data);
     if (data.length < limit) break;
