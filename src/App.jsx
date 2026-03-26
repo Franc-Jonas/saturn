@@ -241,7 +241,8 @@ const PlaceholderTab = ({ name, accent }) => (
 const AUDIO_RE = /\.(mp3|wav|ogg|flac|m4a|aac)$/i;
 
 const MusicTab = ({ accent, activeProject, session }) => {
-  const [songs, setSongs] = useState([]);
+  const [items, setItems] = useState([]);
+  const [currentPath, setCurrentPath] = useState("");
   const [currentSong, setCurrentSong] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [stopping, setStopping] = useState(false);
@@ -265,14 +266,15 @@ const MusicTab = ({ accent, activeProject, session }) => {
 
   const getUrl = (name) => supabase.storage.from("campaign_files").getPublicUrl(`${session.user.id}/${activeProject.id}/${name}`).data?.publicUrl;
 
-  // fetch audio files
+  // fetch audio files & folders
   useEffect(() => {
-    const fetchSongs = async () => {
-      const data = await listAllStorageFiles("campaign_files", `${session.user.id}/${activeProject.id}`);
-      setSongs(data.filter(f => AUDIO_RE.test(f.name)));
+    const fetchItems = async () => {
+      const pathPrefix = currentPath ? `${session.user.id}/${activeProject.id}/${currentPath}` : `${session.user.id}/${activeProject.id}`;
+      const data = await listAllStorageFiles("campaign_files", pathPrefix);
+      setItems(data.filter(f => (!f.id && f.name !== ".emptyFolderPlaceholder") || (f.id && AUDIO_RE.test(f.name))));
     };
-    fetchSongs();
-  }, [activeProject.id]);
+    fetchItems();
+  }, [activeProject.id, currentPath]);
 
   // progress tracker
   useEffect(() => {
@@ -419,37 +421,70 @@ const MusicTab = ({ accent, activeProject, session }) => {
 
   const fmt = (s) => { if (!s || isNaN(s)) return "0:00"; const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return `${m}:${sec < 10 ? "0" : ""}${sec}`; };
 
+  const getBasename = (path) => path ? path.split('/').pop() : "";
   const stripExt = (name) => name.replace(/\.[^.]+$/, "");
 
   return (
     <div style={{ display: "flex", height: "100%", overflow: "hidden" }}>
-      {/* Song list */}
+      {/* Item list */}
       <div style={{ width: "260px", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", background: "rgba(0,0,0,0.2)" }}>
         <div style={{ padding: "12px 14px 8px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>{songs.length} song{songs.length !== 1 ? "s" : ""}</p>
+          {currentPath ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button onClick={() => {
+                const parts = currentPath.split("/");
+                parts.pop();
+                setCurrentPath(parts.join("/"));
+              }} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", display: "flex", alignItems: "center", transition: "all 0.15s" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.6)"; }}>
+                ⬅
+              </button>
+              <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                / {currentPath}
+              </span>
+            </div>
+          ) : (
+            <p style={{ fontFamily: mono, fontSize: "9px", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)", margin: 0 }}>catalog</p>
+          )}
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "6px" }}>
-          {songs.length === 0 ? (
+          {items.length === 0 ? (
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: "12px", opacity: 0.2, color: accent }}>
               {ICONS.audio}
-              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no audio files</p>
+              <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>no items</p>
               <p style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.3)", margin: 0, textAlign: "center" }}>upload audio in files tab</p>
             </div>
-          ) : songs.map(s => (
-            <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", background: currentSong === s.name ? `rgba(${rgb},0.12)` : "transparent", color: currentSong === s.name ? accent : "rgba(255,255,255,0.55)", transition: "all 0.15s" }}
-              onMouseEnter={e => { if (currentSong !== s.name) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-              onMouseLeave={e => { if (currentSong !== s.name) e.currentTarget.style.background = "transparent"; }}
-              onClick={() => playSong(s.name)}>
-              <span style={{ opacity: 0.5, flexShrink: 0 }}>{ICONS.audio}</span>
-              <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s.name)}</span>
-              <button onClick={e => { e.stopPropagation(); addToQueue(s.name); }}
-                style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", flexShrink: 0, transition: "all 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}>
-                +
-              </button>
-            </div>
-          ))}
+          ) : items.map(s => {
+            const isFolder = !s.id;
+            const fullPath = currentPath ? `${currentPath}/${s.name}` : s.name;
+            if (isFolder) {
+              return (
+                <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", color: "rgba(255,255,255,0.8)", transition: "all 0.15s" }}
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  onClick={() => setCurrentPath(fullPath)}>
+                  <span style={{ opacity: 0.8, flexShrink: 0, color: accent }}>{ICONS.folder}</span>
+                  <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.name}</span>
+                </div>
+              );
+            }
+            return (
+              <div key={s.name} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "6px", cursor: "pointer", background: currentSong === fullPath ? `rgba(${rgb},0.12)` : "transparent", color: currentSong === fullPath ? accent : "rgba(255,255,255,0.55)", transition: "all 0.15s" }}
+                onMouseEnter={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
+                onMouseLeave={e => { if (currentSong !== fullPath) e.currentTarget.style.background = "transparent"; }}
+                onClick={() => playSong(fullPath)}>
+                <span style={{ opacity: 0.5, flexShrink: 0 }}>{ICONS.audio}</span>
+                <span style={{ fontFamily: mono, fontSize: "11px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s.name)}</span>
+                <button onClick={e => { e.stopPropagation(); addToQueue(fullPath); }}
+                  style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", color: "rgba(255,255,255,0.3)", cursor: "pointer", padding: "2px 6px", fontFamily: mono, fontSize: "9px", flexShrink: 0, transition: "all 0.15s" }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.4)`; e.currentTarget.style.color = accent; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.3)"; }}>
+                  +
+                </button>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -463,7 +498,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
 
           {/* Song name */}
           <p style={{ fontFamily: mono, fontSize: "14px", color: currentSong ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.2)", letterSpacing: "0.08em", margin: 0, textAlign: "center", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {currentSong ? stripExt(currentSong) : endMessage ? "no more songs in queue" : "select a song"}
+            {currentSong ? stripExt(getBasename(currentSong)) : endMessage ? "no more songs in queue" : "select a song"}
           </p>
 
           {/* Progress bar */}
@@ -533,7 +568,7 @@ const MusicTab = ({ accent, activeProject, session }) => {
               onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
               <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", width: "16px", flexShrink: 0 }}>{i + 1}.</span>
-              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.45)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(s)}</span>
+              <span style={{ fontFamily: mono, fontSize: "10px", color: "rgba(255,255,255,0.45)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stripExt(getBasename(s))}</span>
               <button onClick={() => removeFromQueue(i)}
                 style={{ background: "none", border: "none", color: "rgba(255,80,80,0.3)", cursor: "pointer", fontSize: "12px", lineHeight: 1, padding: "0 2px" }}
                 onMouseEnter={e => e.currentTarget.style.color = "rgba(255,80,80,0.8)"}
