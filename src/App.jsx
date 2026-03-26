@@ -591,6 +591,8 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [viewMode, setViewMode] = useState("read");
+  const [hoverBtn, setHoverBtn] = useState(null);
   const isPanning = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const containerRef = useRef(null);
@@ -668,33 +670,26 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
   };
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      {/* Toolbar */}
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", flexShrink: 0 }}>
-        <button onClick={resetView} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "5px", color: "rgba(255,255,255,0.4)", fontFamily: mono, fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 10px", cursor: "pointer", transition: "all 0.15s" }}
-          onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${rgb},0.3)`; e.currentTarget.style.color = accent; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}>
-          reset view
-        </button>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}>
+      {/* Top Toolbar */}
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)", flexShrink: 0, justifyContent: "space-between", zIndex: 10 }}>
         <span style={{ fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.2)", letterSpacing: "0.1em" }}>
-          {Math.round(transform.scale * 100)}%
+          {activeProject.map_url ? `${Math.round(transform.scale * 100)}%` : ""}
         </span>
-        <div style={{ flex: 1 }} />
-        {activeProject.map_url && (
-          <button onClick={handleClear} style={{ background: "none", border: "1px solid rgba(255,80,80,0.2)", borderRadius: "5px", color: "rgba(255,100,100,0.5)", fontFamily: mono, fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 10px", cursor: "pointer", transition: "all 0.15s" }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.5)"; e.currentTarget.style.color = "rgba(255,100,100,0.9)"; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,80,80,0.2)"; e.currentTarget.style.color = "rgba(255,100,100,0.5)"; }}>
-            clear map
-          </button>
-        )}
+        <button onClick={() => setViewMode(viewMode === "edit" ? "read" : "edit")}
+          style={{ background: `rgba(${rgb},0.1)`, border: `1px solid rgba(${rgb},0.3)`, borderRadius: "4px", color: accent, fontFamily: mono, fontSize: "9px", letterSpacing: "0.15em", textTransform: "uppercase", padding: "4px 8px", cursor: "pointer", transition: "all 0.15s" }}
+          onMouseEnter={e => e.currentTarget.style.background = `rgba(${rgb},0.2)`}
+          onMouseLeave={e => e.currentTarget.style.background = `rgba(${rgb},0.1)`}>
+          {viewMode === "edit" ? "read" : "edit"} mode
+        </button>
       </div>
 
       {/* Canvas */}
       <div
         ref={containerRef}
-        onDragOver={e => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
+        onDragOver={viewMode === "edit" ? e => { e.preventDefault(); setDragging(true); } : undefined}
+        onDragLeave={viewMode === "edit" ? () => setDragging(false) : undefined}
+        onDrop={viewMode === "edit" ? handleDrop : undefined}
         onMouseDown={activeProject.map_url ? handleMouseDown : undefined}
         onMouseMove={activeProject.map_url ? handleMouseMove : undefined}
         onMouseUp={activeProject.map_url ? handleMouseUp : undefined}
@@ -713,11 +708,55 @@ const MapTab = ({ accent, activeProject, session, onUpdateMap, onClearMap }) => 
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "12px", opacity: dragging ? 0.6 : 0.2, color: accent, transition: "opacity 0.2s" }}>
             {ICONS.upload}
             <p style={{ fontFamily: mono, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", margin: 0 }}>
-              {uploading ? "uploading..." : "drag map image here"}
+              {viewMode === "read" ? "switch to edit mode to upload map" : uploading ? "uploading..." : "drag map image here"}
             </p>
           </div>
         )}
       </div>
+
+      {/* Floating Toolbar */}
+      {viewMode === "edit" && activeProject.map_url && (
+        <div style={{ position: "absolute", bottom: "32px", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: "8px", background: "rgba(18,18,18,0.85)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", padding: "8px", backdropFilter: "blur(12px)", zIndex: 20, boxShadow: "0 8px 32px rgba(0,0,0,0.5)" }}>
+          <div style={{ position: "relative", display: "flex" }}>
+            {hoverBtn === "reset" && (
+              <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+                reset view
+              </div>
+            )}
+            <button
+              onClick={resetView}
+              onMouseEnter={() => setHoverBtn("reset")}
+              onMouseLeave={() => setHoverBtn(null)}
+              style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+              onMouseOver={e => { e.currentTarget.style.color = accent; e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+              onMouseOut={e => { e.currentTarget.style.color = "rgba(255,255,255,0.4)"; e.currentTarget.style.background = "none"; }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </div>
+          
+          <div style={{ width: "1px", height: "24px", background: "rgba(255,255,255,0.1)" }} />
+
+          <div style={{ position: "relative", display: "flex" }}>
+            {hoverBtn === "clear" && (
+              <div style={{ position: "absolute", bottom: "100%", left: "50%", transform: "translate(-50%, -12px)", background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", padding: "6px 10px", fontFamily: mono, fontSize: "9px", color: "rgba(255,255,255,0.8)", whiteSpace: "nowrap", letterSpacing: "0.1em", textTransform: "uppercase", pointerEvents: "none", boxShadow: "0 4px 12px rgba(0,0,0,0.4)" }}>
+                clear map
+              </div>
+            )}
+            <button
+              onClick={() => {
+                if (window.confirm("Are you sure you want to clear the map for this campaign?")) handleClear();
+              }}
+              onMouseEnter={() => setHoverBtn("clear")}
+              onMouseLeave={() => setHoverBtn(null)}
+              style={{ background: "none", border: "none", color: "rgba(255,100,100,0.5)", cursor: "pointer", padding: "8px", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
+              onMouseOver={e => { e.currentTarget.style.color = "rgba(255,100,100,0.9)"; e.currentTarget.style.background = "rgba(255,80,80,0.15)"; }}
+              onMouseOut={e => { e.currentTarget.style.color = "rgba(255,100,100,0.5)"; e.currentTarget.style.background = "none"; }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
